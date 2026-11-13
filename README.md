@@ -70,7 +70,10 @@ La app es una **PWA** (aplicación web progresiva):
 Tus diseños se **autoguardan en el dispositivo** (almacenamiento local del navegador). Para pasarlos a otro dispositivo o hacer copias de seguridad, usá **Guardar** (descarga un `.json`) y **Abrir**.
 
 ### 📲 Instalarla como app
-- **Chrome / Edge (PC y Android):** botón **Instalar** en la barra superior de la app, o el ícono de instalación en la barra de direcciones.
+Tocá el botón **⬇ Descargar aplicación** de la barra superior. Se abre una ventana que indica si la app ya quedó guardada para usarla sin conexión y ofrece dos opciones:
+
+- **📲 Instalar en este dispositivo** (Chrome / Edge en PC y Android): queda como una app más, con su ícono.
+- **📄 Descargar archivo (.html)**: baja una copia de la aplicación en un solo archivo (`Taller_Lego.html`). Se abre con doble clic, en cualquier computadora o celular, **sin internet**, y se puede pasar por pendrive o WhatsApp.
 - **iPhone / iPad (Safari):** *Compartir* → *Agregar a pantalla de inicio*.
 
 ## 🚀 Publicar en GitHub Pages

@@ -38,6 +38,7 @@ footer{grid-area:f;padding:6px 10px;background:var(--pn);border-top:1px solid va
 button{touch-action:manipulation}button:disabled{opacity:.5;cursor:default}
 #net{font-size:12px;color:var(--mu);display:inline-flex;align-items:center;gap:5px;white-space:nowrap}#net::before{content:"";width:8px;height:8px;border-radius:50%;background:#30a46c}#net.off::before{background:#e5484d}
 #in[hidden]{display:none}.ht{display:none}
+#dg{max-width:min(92vw,430px);border:1px solid var(--ln);border-radius:12px;background:var(--pn);color:var(--ink);padding:16px 18px}#dg::backdrop{background:rgba(0,0,0,.5)}#dg h2{margin:0 0 6px;font-size:16px}#dg p{margin:6px 0}#dg .b button{padding:10px 12px}#ds{font-weight:600}#ds.ok{color:#30a46c}#ds.no{color:#e5484d}
 #pr input[type=checkbox]{width:18px;height:18px;justify-self:start}
 @media(hover:none) and (pointer:coarse){.hd{display:none}.ht{display:inline}}
 @media(pointer:coarse){button,select{min-height:38px;font-size:15px}#pr input[type=number]{font-size:16px;padding:8px}#pal button{min-height:44px}select{font-size:16px}}
@@ -53,7 +54,12 @@ body{grid-template:auto minmax(0,1fr) auto/130px minmax(0,1fr) 200px;grid-templa
 </style></head><body>
 <header><h1>Taller Lego</h1>
 <button id="un">Deshacer</button><select id="sn" aria-label="Ajuste a rejilla"><option value="8" selected>Ajuste 8 mm (studs)</option><option value="4">Ajuste 4 mm</option><option value="1">Ajuste 1 mm</option></select>
-<span id="net" role="status" aria-live="polite">En línea</span><button id="in" class="p" hidden>Instalar</button><button id="nw">Nuevo</button><button id="sv">Guardar</button><button id="op">Abrir</button><button id="ex" class="p">Exportar STL</button><input id="fi" type="file" accept=".json" hidden></header>
+<span id="net" role="status" aria-live="polite">En línea</span><button id="in" class="p">⬇ Descargar aplicación</button><button id="nw">Nuevo</button><button id="sv">Guardar</button><button id="op">Abrir</button><button id="ex" class="p">Exportar STL</button><input id="fi" type="file" accept=".json" hidden></header>
+<dialog id="dg" aria-labelledby="dt"><h2 id="dt">Usar Taller Lego sin conexión</h2>
+<p id="ds" role="status"></p>
+<p class="mu">Elegí cómo llevarte la aplicación. Tus diseños se guardan en el dispositivo y también podés usar <b>Guardar</b> para bajarlos como archivo.</p>
+<div class="b" style="flex-direction:column"><button id="di" class="p">📲 Instalar en este dispositivo</button><button id="dh">📄 Descargar archivo (.html) para usar sin internet</button><button id="dc">Cerrar</button></div>
+<p class="mu" id="dn" style="font-size:12px"></p></dialog>
 <nav id="pal" aria-label="Piezas"></nav>
 <main id="c"><canvas id="gl"></canvas><div id="hint"><span class="hd">Arrastra: girar · Shift/clic derecho: mover vista · Rueda o pellizco: zoom · Arrastra una pieza para moverla (se apoya sola sobre las de abajo) · Cuadro turquesa = cama 165×165 mm</span><span class="ht">Un dedo: girar · Pellizco: zoom · Dos dedos: mover vista · Arrastrá una pieza para moverla · Cuadro turquesa = cama 165×165 mm</span></div></main>
 <aside id="pr"></aside>
@@ -211,8 +217,18 @@ try{const s=localStorage.getItem(KEY);if(s)load(s)}catch(e){}ui();
 /* ---------- PWA: sin conexión, instalación y estado de red ---------- */
 const net=()=>{const n=$('#net'),on=navigator.onLine;n.textContent=on?'En línea':'Sin conexión';n.classList.toggle('off',!on)};
 addEventListener('online',net);addEventListener('offline',net);net();
-let ip=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('#in').hidden=false});
-$('#in').onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice.catch(()=>{});ip=null;$('#in').hidden=true};
-addEventListener('appinstalled',()=>{ip=null;$('#in').hidden=true});
+let ip=null;const dg=$('#dg'),ds=$('#ds'),stand=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;ref()});
+addEventListener('appinstalled',()=>{ip=null;$('#in').hidden=true;ref()});
+if(stand)$('#in').hidden=true;
+async function ready(){try{return !!(window.caches&&await caches.match('index.html'))}catch(e){return false}}
+async function ref(){const ok=await ready(),loc=location.protocol==='file:';
+ds.className=ok||loc?'ok':'no';ds.textContent=loc?'✅ Estás usando el archivo guardado en tu dispositivo: ya funciona sin conexión.':ok?'✅ La aplicación ya está guardada: funciona sin conexión.':'⚠ Todavía no está guardada. Conectate a internet y esperá unos segundos.';
+$('#di').disabled=!ip;$('#di').hidden=stand||loc;$('#dh').hidden=loc;
+$('#dn').textContent=ip?'':ios?'En iPhone/iPad: tocá Compartir y luego "Agregar a pantalla de inicio".':stand?'':loc?'':'Si no se habilita "Instalar", usá el menú del navegador (⋮) → "Instalar aplicación", o descargá el archivo .html.'}
+$('#in').onclick=async()=>{await ref();dg.showModal?dg.showModal():alert(ds.textContent)};
+$('#dc').onclick=()=>dg.close();dg.onclick=e=>{if(e.target===dg)dg.close()};
+$('#di').onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice.catch(()=>{});ip=null;ref()};
+$('#dh').onclick=async()=>{try{const r=await fetch('index.html');if(!r.ok)throw 0;dl(new Blob([await r.text()],{type:'text/html'}),'Taller_Lego.html');ds.className='ok';ds.textContent='✅ Descargado. Guardalo y abrilo con doble clic: funciona sin internet.'}catch(e){ds.className='no';ds.textContent='⚠ No se pudo descargar ahora. Conectate a internet e intentá de nuevo.'}};
 if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script></body></html>

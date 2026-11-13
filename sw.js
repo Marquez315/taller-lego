@@ -1,6 +1,6 @@
 /* Service worker de Taller Lego: permite usar la app sin conexión.
    Para publicar una versión nueva, cambiá VERSION (así se renueva la caché). */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'taller-lego-' + VERSION;
 const ASSETS = [
   './',
