@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taller Lego</title>
+<meta name="description" content="Diseñá piezas tipo Lego en 3D y exportalas a STL para imprimir. Funciona sin conexión.">
+<meta name="theme-color" content="#0f8b8d" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10171d" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Taller Lego">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#dde5ec;--pn:#ffffff;--ink:#1b2733;--mu:#5d6b78;--ac:#0f8b8d;--ln:#c4cfd9;--cv:#cfd9e2;--pl:#e9eff4;--g1:#b9c6d2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10171d;--pn:#19232c;--ink:#e6edf3;--mu:#8fa0af;--ac:#3bc1c3;--ln:#2a3844;--cv:#0d1318;--pl:#18232c;--g1:#25333f}}
+:root[data-theme="dark"]{--bg:#10171d;--pn:#19232c;--ink:#e6edf3;--mu:#8fa0af;--ac:#3bc1c3;--ln:#2a3844;--cv:#0d1318;--pl:#18232c;--g1:#25333f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0}
+body{font:14px/1.3 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);display:grid;grid-template:auto minmax(0,1fr) auto/clamp(150px,14vw,190px) minmax(0,1fr) clamp(240px,21vw,290px);grid-template-areas:"h h h" "l c r" "f f f";overflow:hidden;overscroll-behavior:none;height:100dvh}
+header{grid-area:h;display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px;background:var(--pn);border-bottom:1px solid var(--ln)}
+h1{font-size:16px;margin:0 auto 0 0}
+button,select{font:inherit;color:var(--ink);background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:7px 11px;cursor:pointer}
+button:hover{border-color:var(--ac)}button.p{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+#pal{grid-area:l;padding:10px;background:var(--pn);border-right:1px solid var(--ln);display:grid;grid-template-columns:1fr;gap:6px;align-content:start;overflow-y:auto}
+#pal button{text-align:left;min-height:40px}#pal .t{color:var(--mu);font-weight:600;margin-top:6px}
+#c{grid-area:c;position:relative;min-height:0;background:var(--cv)}canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#hint{position:absolute;left:10px;bottom:8px;right:10px;color:var(--mu);font-size:12px;pointer-events:none}
+#pr{grid-area:r;padding:10px;background:var(--pn);border-left:1px solid var(--ln);overflow-y:auto}
+#pr h2{font-size:13px;margin:0 0 8px}.g{display:grid;grid-template-columns:auto 1fr;gap:5px 8px;align-items:center}
+#pr input[type=number]{width:100%;padding:5px 6px;border:1px solid var(--ln);border-radius:6px;background:var(--pl);color:var(--ink)}
+#pr input[type=color]{width:100%;height:30px;border:1px solid var(--ln);border-radius:6px;padding:2px;background:none}
+.b{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.b button{flex:1 1 auto;padding:6px 9px}.mu{color:var(--mu)}
+.rv{margin-top:14px;border-top:1px solid var(--ln);padding-top:10px;font-size:12px}.rv ul{margin:0;padding-left:16px}.rv li{margin:3px 0}.er{color:#e5484d}
+footer{grid-area:f;padding:6px 10px;background:var(--pn);border-top:1px solid var(--ln);text-align:center;font-size:12px;color:var(--mu)}footer a{color:var(--ac);font-weight:600}
+button{touch-action:manipulation}button:disabled{opacity:.5;cursor:default}
+#net{font-size:12px;color:var(--mu);display:inline-flex;align-items:center;gap:5px;white-space:nowrap}#net::before{content:"";width:8px;height:8px;border-radius:50%;background:#30a46c}#net.off::before{background:#e5484d}
+#in[hidden]{display:none}.ht{display:none}
+#pr input[type=checkbox]{width:18px;height:18px;justify-self:start}
+@media(hover:none) and (pointer:coarse){.hd{display:none}.ht{display:inline}}
+@media(pointer:coarse){button,select{min-height:38px;font-size:15px}#pr input[type=number]{font-size:16px;padding:8px}#pal button{min-height:44px}select{font-size:16px}}
+@media(max-width:760px){body{grid-template:auto auto minmax(0,1fr) auto auto/minmax(0,1fr);grid-template-areas:"h" "l" "c" "r" "f"}
+header{padding:6px 8px;gap:5px}h1{font-size:15px}header button,header select{padding:6px 9px}#hint{font-size:11px}footer{font-size:11px;padding:4px 8px}
+#pal{display:flex;overflow-x:auto;border:0;border-bottom:1px solid var(--ln);padding:6px}#pal button{flex:0 0 auto}#pal .t{display:none}
+#pr{max-height:32vh;max-height:32dvh;border-left:0;border-top:1px solid var(--ln)}}
+@media(max-width:900px) and (max-height:520px) and (orientation:landscape){
+body{grid-template:auto minmax(0,1fr) auto/130px minmax(0,1fr) 200px;grid-template-areas:"h h h" "l c r" "f f f"}
+#pal{display:grid;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--ln);border-bottom:0}#pal button{flex:none}#pal .t{display:block}
+#pr{max-height:none;border-top:0;border-left:1px solid var(--ln)}#hint{display:none}footer{padding:3px 8px}}
+@media(min-width:761px) and (max-height:520px){header{padding:4px 8px}footer{padding:3px 8px}}
+</style></head><body>
+<header><h1>Taller Lego</h1>
+<button id="un">Deshacer</button><select id="sn" aria-label="Ajuste a rejilla"><option value="8" selected>Ajuste 8 mm (studs)</option><option value="4">Ajuste 4 mm</option><option value="1">Ajuste 1 mm</option></select>
+<span id="net" role="status" aria-live="polite">En línea</span><button id="in" class="p" hidden>Instalar</button><button id="nw">Nuevo</button><button id="sv">Guardar</button><button id="op">Abrir</button><button id="ex" class="p">Exportar STL</button><input id="fi" type="file" accept=".json" hidden></header>
+<nav id="pal" aria-label="Piezas"></nav>
+<main id="c"><canvas id="gl"></canvas><div id="hint"><span class="hd">Arrastra: girar · Shift/clic derecho: mover vista · Rueda o pellizco: zoom · Arrastra una pieza para moverla (se apoya sola sobre las de abajo) · Cuadro turquesa = cama 165×165 mm</span><span class="ht">Un dedo: girar · Pellizco: zoom · Dos dedos: mover vista · Arrastrá una pieza para moverla · Cuadro turquesa = cama 165×165 mm</span></div></main>
+<aside id="pr"></aside>
+<footer>Creado para educación, por la profesora: Marquez Camila Araceli &nbsp;—&nbsp; Instagram: <a href="https://www.instagram.com/didactica_aumentada3.0/" target="_blank" rel="noopener">@didactica_aumentada3.0</a></footer>
+<script>
+"use strict";
+const $=s=>document.querySelector(s),TAU=Math.PI*2,KEY='tallerlego-v1';
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],cr=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dt=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],nz=a=>{const l=Math.hypot(...a)||1;return a.map(x=>x/l)};
+const mul=(a,b)=>{const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s}return o};
+const hx=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255);
+/* ---------- constructor de mallas (cajas y cilindros/anillos) ---------- */
+function MB(){const T=[],add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const tri=(a,b,c,n,k)=>{const x=cr(sub(b,a),sub(c,a));if(dt(x,n)<0){[b,c]=[c,b]}T.push([a,b,c,n,k])},quad=(a,b,c,d,n,k)=>{tri(a,b,c,n,k);tri(a,c,d,n,k)};
+return{T,box(x0,y0,z0,x1,y1,z1,k){const P=(x,y,z)=>[x,y,z];
+quad(P(x0,y0,z0),P(x1,y0,z0),P(x1,y0,z1),P(x0,y0,z1),[0,-1,0],k);quad(P(x0,y1,z0),P(x1,y1,z0),P(x1,y1,z1),P(x0,y1,z1),[0,1,0],k);
+quad(P(x0,y0,z0),P(x0,y1,z0),P(x0,y1,z1),P(x0,y0,z1),[-1,0,0],k);quad(P(x1,y0,z0),P(x1,y1,z0),P(x1,y1,z1),P(x1,y0,z1),[1,0,0],k);
+quad(P(x0,y0,z0),P(x1,y0,z0),P(x1,y1,z0),P(x0,y1,z0),[0,0,-1],k);quad(P(x0,y0,z1),P(x1,y0,z1),P(x1,y1,z1),P(x0,y1,z1),[0,0,1],k)},
+cyl(ax,c,L,r,ri,k,S=16){const m=ax=='z'?(u,v,w)=>[u,v,w]:ax=='x'?(u,v,w)=>[w,u,v]:(u,v,w)=>[v,w,u],p=(q,a,w)=>add(m(q*Math.cos(a),q*Math.sin(a),w),c),nn=(a,s=1)=>m(s*Math.cos(a),s*Math.sin(a),0),h=L/2;
+for(let i=0;i<S;i++){const a=TAU*i/S,b=TAU*(i+1)/S,md=(a+b)/2;quad(p(r,a,-h),p(r,b,-h),p(r,b,h),p(r,a,h),nn(md),k);
+if(ri>0){quad(p(ri,a,-h),p(ri,b,-h),p(ri,b,h),p(ri,a,h),nn(md,-1),k);quad(p(ri,a,h),p(r,a,h),p(r,b,h),p(ri,b,h),m(0,0,1),k);quad(p(ri,a,-h),p(r,a,-h),p(r,b,-h),p(ri,b,-h),m(0,0,-1),k)}
+else{tri(add(m(0,0,h),c),p(r,a,h),p(r,b,h),m(0,0,1),k);tri(add(m(0,0,-h),c),p(r,a,-h),p(r,b,-h),m(0,0,-1),k)}}}}}
+/* ---------- piezas (origen: centro de la huella, z=0 abajo). Medidas Lego: stud 8 mm, placa 3,2 mm, ladrillo 9,6 mm ---------- */
+function brick(m,o,st=1){const W=o.nx*8-.2,D=o.ny*8-.2,H=o.hp*3.2,k=hx(o.c),a=W/2,b=D/2,t=1.2,w=1.5;
+m.box(-a,-b,H-t,a,b,H,k);m.box(-a,-b,0,a,-b+w,H-t,k);m.box(-a,b-w,0,a,b,H-t,k);m.box(-a,-b+w,0,-a+w,b-w,H-t,k);m.box(a-w,-b+w,0,a,b-w,H-t,k);
+if(st)for(let i=0;i<o.nx;i++)for(let j=0;j<o.ny;j++)m.cyl('z',[(i-(o.nx-1)/2)*8,(j-(o.ny-1)/2)*8,H+.85],1.7,2.4,0,k);
+if(o.nx>1&&o.ny>1)for(let i=0;i<o.nx-1;i++)for(let j=0;j<o.ny-1;j++)m.cyl('z',[(i-(o.nx-2)/2)*8,(j-(o.ny-2)/2)*8,(H-t)/2],H-t,3.25,2.45,k)}
+const PT={
+lad:{n:'Ladrillo / placa',st:1,tp:o=>o.hp*3.2,f:(m,o)=>brick(m,o),F:[['nx','Largo (studs)',1,16],['ny','Ancho (studs)',1,16],['hp','Alto (placas de 3,2 mm)',1,6]]},
+mot:{n:'Motorreductor TT amarillo',ref:1,tp:()=>0,f:(m,o)=>{m.box(-35,-11.25,0,2,11.25,18.5,hx(o.c));m.cyl('x',[18.5,0,9.25],33,9.2,0,hx('#a9b2ba'));m.cyl('y',[-16.5,0,9.25],40.5,2.7,0,hx('#eeeeee'))}},
+sopM:{n:'Soporte motor TT',st:1,d:{nx:10,ny:4,hp:1},tp:()=>3.2,f:(m,o)=>{brick(m,o,0);const k=hx(o.c);m.box(-36,11.45,3.2,36,15.45,8.2,k);m.box(-36,-15.45,3.2,36,-11.45,8.2,k)}},
+rue:{n:'Rueda',tp:()=>0,F:[['dm','Diámetro mm',20,90],['w','Ancho mm',4,30]],f:(m,o)=>m.cyl('y',[0,0,o.dm/2],o.w,o.dm/2,2.75,hx(o.c),40)},
+pil:{n:'Pila 18650 (Ø18,6×65,2)',ref:1,tp:()=>0,f:(m,o)=>{m.cyl('x',[0,0,9.3],65.2,9.3,0,hx(o.c),24);m.cyl('x',[33.4,0,9.3],1.6,3.5,0,hx('#c8c8c8'))}},
+sopP:{n:'Soporte pila 18650',st:1,d:{nx:10,ny:3,hp:1},tp:()=>3.2,f:(m,o)=>{brick(m,o,0);const k=hx(o.c);m.box(-37.6,9.7,3.2,37.6,11.7,12.2,k);m.box(-37.6,-11.7,3.2,37.6,-9.7,12.2,k);m.box(35.6,-11.7,3.2,37.6,11.7,12.2,k);m.box(-37.6,-11.7,3.2,-35.6,11.7,12.2,k)}}};
+const PAL=[['Ladrillos y placas'],['🧱 Ladrillo 2×4','lad',{nx:4,ny:2,hp:3,c:'#e5484d'}],['🧱 Ladrillo 2×2','lad',{nx:2,ny:2,hp:3,c:'#3e8ef7'}],['▬ Placa 2×6','lad',{nx:6,ny:2,hp:1,c:'#30a46c'}],['▭ Placa chasis 6×10','lad',{nx:10,ny:6,hp:1,c:'#8e4ec6'}],
+['Electrónica y movimiento'],['🟡 Motor TT amarillo','mot',{c:'#f2c200'}],['🔩 Soporte motor TT','sopM',{c:'#3e8ef7'}],['🛞 Rueda','rue',{dm:42,w:8,c:'#222222'}],['🔋 Pila 18650','pil',{c:'#2f6fdb'}],['📦 Soporte pila 18650','sopP',{c:'#3e8ef7'}]];
+/* ---------- piezas de maqueta: turbina, semáforo, poste, techos, rueda TT ---------- */
+const tw=(m,a,b,c,n,k)=>{const x=cr(sub(b,a),sub(c,a));if(Math.hypot(...x)<1e-9)return;if(dt(x,n)<0)[b,c]=[c,b];m.T.push([a,b,c,n,k])},qw=(m,a,b,c,d,n,k)=>{tw(m,a,b,c,n,k);tw(m,a,c,d,n,k)};
+function rb(m,c,an,pi,u0,u1,hv,hw,k){const ca=Math.cos(an),sa=Math.sin(an),cp=Math.cos(pi),sp=Math.sin(pi),F=(u,v,w)=>{const V=v*cp-w*sp,W=v*sp+w*cp;return[u*ca-V*sa,W,u*sa+V*ca]},P=(u,v,w)=>{const q=F(u,v,w);return[q[0]+c[0],q[1]+c[1],q[2]+c[2]]};
+for(const s of[-1,1]){const u=s<0?u0:u1,v=s*hv,w=s*hw;qw(m,P(u,-hv,-hw),P(u,hv,-hw),P(u,hv,hw),P(u,-hv,hw),F(s,0,0),k);qw(m,P(u0,v,-hw),P(u1,v,-hw),P(u1,v,hw),P(u0,v,hw),F(0,s,0),k);qw(m,P(u0,-hv,w),P(u1,-hv,w),P(u1,hv,w),P(u0,hv,w),F(0,0,s),k)}}
+const base=(m,o)=>brick(m,{nx:o.nx,ny:o.ny,hp:1,c:o.c},1),NXY=[['nx','Base X (studs)',1,16],['ny','Base Y (studs)',1,16]];
+Object.assign(PT,{
+tur:{n:'Torre eólica (con eje)',st:1,d:{nx:4,ny:4,h:70},tp:o=>o.h+10,F:[...NXY,['h','Altura torre mm',30,150]],f:(m,o)=>{const k=hx(o.c),h=o.h;base(m,o);m.cyl('z',[0,0,(3.2+h)/2],h-3.2,4.5,0,k,20);m.box(-5,-10,h,5,8,h+10,k);m.cyl('y',[0,12.75,h+5],9.5,1.5,0,k,12)}},
+rot:{n:'Aspas de turbina',tp:()=>0,d:{n:3,L:35,pt:25},F:[['n','Cantidad de aspas',2,6],['L','Largo de aspa mm',15,70],['pt','Inclinación aspa °',0,45]],f:(m,o)=>{const k=hx(o.c),R=3+o.L,c=[0,0,R],N=Math.round(o.n);m.cyl('y',c,8,5.5,1.9,k,24);for(let i=0;i<N;i++)rb(m,c,Math.PI/2+TAU*i/N,o.pt*Math.PI/180,3.5,R,6,1.2,k)}},
+sem:{n:'Semáforo (huecos LED)',st:1,d:{nx:2,ny:2,h:30,hd:5.2},tp:o=>o.h+3*(o.hd+7),F:[...NXY,['h','Altura del poste mm',10,100],['hd','Hueco LED mm (5,2 = LED 5 mm)',3,8]],f:(m,o)=>{const k=hx(o.c),h=o.h,d=o.hd,W=d+8,P=d+7,D=12,a=d/2;base(m,o);m.cyl('z',[0,0,(3.2+h)/2],h-2.7,3,0,k,16);
+for(let i=0;i<3;i++){const z0=h+i*P,z1=z0+P,zc=z0+P/2;m.box(-W/2,-D/2,z0,-a,D/2,z1,k);m.box(a,-D/2,z0,W/2,D/2,z1,k);m.box(-a,-D/2,z0,a,D/2,zc-a,k);m.box(-a,-D/2,zc+a,a,D/2,z1,k);m.box(-W/2+.8,D/2,zc+a+1.2,W/2-.8,D/2+5,zc+a+2.4,k)}}},
+pos:{n:'Poste de luz (LED)',st:1,d:{nx:2,ny:2,h:70,hd:5.2,br:1},tp:o=>o.h,F:[...NXY,['h','Altura mm',20,150],['hd','Hueco LED mm',3,8],['br','Brazos (1 o 2)',1,2]],f:(m,o)=>{const k=hx(o.c),h=o.h,d=o.hd,a=d/2;base(m,o);m.cyl('z',[0,0,(3.2+h)/2],h-3.2,2.2,0,k,16);
+for(const s of o.br>1?[1,-1]:[1]){const B=(x0,x1,y0,y1,z0,z1)=>m.box(Math.min(s*x0,s*x1),y0,z0,Math.max(s*x0,s*x1),y1,z1,k),x0=12,x1=x0+3.5,x2=x1+d,x3=x2+3.5,y=a+3,zb=h-6;B(0,x0+.5,-2,2,h-4,h);B(x0,x1,-y,y,zb,h);B(x2,x3,-y,y,zb,h);B(x1,x2,-y,-a,zb,h);B(x1,x2,a,y,zb,h)}}},
+tej:{n:'Techo a 2 aguas',st:1,d:{nx:4,ny:6,rh:16,ov:3},tp:o=>3.2+o.rh,F:[...NXY,['rh','Altura del tejado mm',4,40],['ov','Alero mm',0,8]],f:(m,o)=>{const k=hx(o.c),A=o.nx*4-.1+o.ov,B=o.ny*4-.1+o.ov,z0=3.2,t=1.6,z1=z0+o.rh;brick(m,{nx:o.nx,ny:o.ny,hp:1,c:o.c},0);
+for(const s of[-1,1]){qw(m,[s*A,-B,z0],[s*A,B,z0],[s*A,B,z0+t],[s*A,-B,z0+t],[s,0,0],k);qw(m,[s*A,-B,z0+t],[s*A,B,z0+t],[0,B,z1],[0,-B,z1],nz([s*(o.rh-t),0,A]),k);const y=s*B,n=[0,s,0];tw(m,[-A,y,z0],[A,y,z0],[A,y,z0+t],n,k);tw(m,[-A,y,z0],[A,y,z0+t],[0,y,z1],n,k);tw(m,[-A,y,z0],[0,y,z1],[-A,y,z0+t],n,k)}
+qw(m,[-A,-B,z0],[A,-B,z0],[A,B,z0],[-A,B,z0],[0,0,-1],k)}},
+tej2:{n:'Techo a 4 aguas',st:1,d:{nx:4,ny:4,rh:14,ov:3},tp:o=>3.2+o.rh,F:[...NXY,['rh','Altura del tejado mm',4,40],['ov','Alero mm',0,8]],f:(m,o)=>{const k=hx(o.c),a=o.nx*4-.1+o.ov,b=o.ny*4-.1+o.ov,sw=b<a,A=sw?b:a,Bm=sw?a:b,e=Bm-A,z0=3.2,z1=z0+o.rh,r=o.rh,p=(x,y,z)=>sw?[y,x,z]:[x,y,z];brick(m,{nx:o.nx,ny:o.ny,hp:1,c:o.c},0);m.box(-a,-b,z0,a,b,z0+1.6,k);
+for(const s of[-1,1]){qw(m,p(s*A,-Bm,z0),p(s*A,Bm,z0),p(0,e,z1),p(0,-e,z1),nz(p(s*r,0,A)),k);tw(m,p(-A,s*Bm,z0),p(A,s*Bm,z0),p(0,s*e,z1),nz(p(0,s*r,A)),k)}}},
+rue2:{n:'Rueda TT con eje D',tp:()=>0,d:{dm:65,w:20},F:[['dm','Diámetro mm',40,100],['w','Ancho mm',12,40]],f:(m,o)=>{const k=hx(o.c),R=o.dm/2,w=o.w,c=[0,0,R];m.cyl('y',c,w,R,R-3,k,48);m.cyl('y',c,w,7,2.75,k,24);m.box(1.85,-w/2,R-2.03,3.4,w/2,R+2.03,k);m.box(-3.4,-w/2,R-2.03,-1.85,w/2,R+2.03,k);for(let i=0;i<5;i++)rb(m,c,TAU*i/5,0,6,R-2.5,2.5,Math.min(w,8)/2,k)}}});
+PAL.splice(PAL.findIndex(p=>p[1]=='rue')+1,0,['🛞 Rueda TT (eje D)','rue2',{c:'#222222'}]);
+PAL.push(['Maqueta y ciudad'],['🌬️ Torre eólica','tur',{c:'#e9edf1'}],['🌀 Aspas de turbina','rot',{c:'#3e8ef7'}],['🚦 Semáforo (LED)','sem',{c:'#2b2f36'}],['💡 Poste de luz (LED)','pos',{c:'#4b5563'}],['🏠 Techo 2 aguas','tej',{c:'#c2410c'}],['🏠 Techo 4 aguas','tej2',{c:'#b45309'}]);
+/* ---------- estado ---------- */
+let objs=[],sel=null,H=[],uid=1,dirty=true,SC=null;const cam={az:-1.05,el:.6,d:260,t:[0,0,10]};
+const snap=()=>JSON.stringify({objs:objs.map(({_w,_b,...o})=>o),uid}),hist=s=>{H.push(s||snap());if(H.length>80)H.shift()},cur=()=>objs.find(o=>o.id===sel);
+function load(j){const d=JSON.parse(j);objs=d.objs.filter(o=>PT[o.t]);uid=d.uid||objs.length+1;sel=null;ui();chg()}
+const save=()=>{try{localStorage.setItem(KEY,snap())}catch(e){}};
+function chg(){SC=null;dirty=true;rv()}
+const rt=(r,x,y)=>{const k=r*Math.PI/2,c=Math.round(Math.cos(k)),s=Math.round(Math.sin(k));return[x*c-y*s,x*s+y*c]};
+function ws(o){if(o._w)return o._w;const m=MB();PT[o.t].f(m,o);const k=o.r*Math.PI/2,c=Math.cos(k),s=Math.sin(k),R=([x,y,z])=>[x*c-y*s+o.x,x*s+y*c+o.y,z+o.z],Rn=([x,y,z])=>[x*c-y*s,x*s+y*c,z],a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];
+o._w=m.T.map(([p,q,u,n,col])=>{const t=[R(p),R(q),R(u)];t.forEach(v=>{for(let i=0;i<3;i++){a[i]=Math.min(a[i],v[i]);b[i]=Math.max(b[i],v[i])}});return[...t,Rn(n),col]});o._b={a,b};return o._w}
+function rest(o){ws(o);const q=o._b;let z=0;for(const p of objs){if(p===o||!PT[p.t].st)continue;ws(p);const r=p._b;if(r.a[0]<q.b[0]-.1&&r.b[0]>q.a[0]+.1&&r.a[1]<q.b[1]-.1&&r.b[1]>q.a[1]+.1)z=Math.max(z,p.z+PT[p.t].tp(p))}o.z=+z.toFixed(2);o._w=null}
+function snapv(o,v,i){const g=+$('#sn').value;if(g==8&&PT[o.t].st){const n=(o.r%2?[o.ny,o.nx]:[o.nx,o.ny])[i];return n%2?Math.round(v/8)*8:Math.round((v-4)/8)*8+4}return Math.round(v/g)*g}
+function add(t,d){hist();const o=Object.assign({id:uid++,t,x:0,y:0,z:0,r:0,c:'#e5484d',ref:!!PT[t].ref},PT[t].d,d),last=k=>[...objs].reverse().find(p=>p.t==k);
+if(t=='mot'||t=='pil'){const s=last(t=='mot'?'sopM':'sopP');if(s){o.x=s.x;o.y=s.y;o.r=s.r;o.z=s.z+3.2}}
+else if(t=='rue'||t=='rue2'){const m=last('mot');if(m){const n=objs.filter(p=>/^rue/.test(p.t)).length,sd=n%2?-1:1,[dx,dy]=rt(m.r,-16.5,sd*(11.75+o.w/2));o.x=m.x+dx;o.y=m.y+dy;o.r=m.r;o.z=m.z+9.25-o.dm/2}}
+else if(t=='rot'){const w=last('tur');if(w){const[dx,dy]=rt(w.r,0,12.75);o.x=w.x+dx;o.y=w.y+dy;o.r=w.r;o.z=w.z+w.h+5-(3+o.L)}}
+else if(PT[t].st)rest(o);
+objs.push(o);sel=o.id;ui();chg();save()}
+/* ---------- panel ---------- */
+function ui(){const o=cur(),pr=$('#pr');
+if(!o){pr.innerHTML='<h2>Propiedades</h2><p class="mu">Elegí una pieza de la paleta y tocala para editarla. El <b>motor</b> y la <b>pila</b> son de referencia (para comprobar que encajan) y no se exportan. Al agregar una rueda, se coloca sola en el eje del último motor.</p><div id="rv" class="rv"></div>';rv();return}
+const F=[['x','X mm'],['y','Y mm'],['z','Z mm'],...(o.t=='sopM'||o.t=='sopP'?[]:PT[o.t].F||[])];
+pr.innerHTML=`<h2>${PT[o.t].n}</h2><div class="g">`+F.map(([k,l])=>`<label for="f${k}">${l}</label><input id="f${k}" type="number" step="1" value="${+o[k].toFixed(2)}">`).join('')+`<label for="fc">Color</label><input id="fc" type="color" value="${o.c}"><label for="fr">Solo referencia</label><input id="fr" type="checkbox"${o.ref?' checked':''}></div><div class="b"><button id="rr">Girar 90°</button><button id="dp">Duplicar</button><button id="ap">Apoyar</button><button id="es">STL de esta pieza</button><button id="dl">Eliminar</button></div><div id="rv" class="rv"></div>`;
+F.forEach(([k,,mn,mx])=>{const e=$('#f'+k);e.onfocus=()=>e._s=snap();e.oninput=()=>{let v=parseFloat(e.value);if(isNaN(v))return;if(mn!=null)v=Math.min(mx,Math.max(mn,v));o[k]=v;o._w=null;if(PT[o.t].st&&k!='x'&&k!='y'&&k!='z')rest(o);chg()};e.onchange=()=>{if(e._s!==snap())hist(e._s);save()}});
+const fc=$('#fc');fc.onfocus=()=>fc._s=snap();fc.oninput=()=>{o.c=fc.value;o._w=null;chg()};fc.onchange=()=>{hist(fc._s);save()};
+$('#fr').onchange=e=>{hist();o.ref=e.target.checked;chg();save()};
+$('#rr').onclick=()=>{hist();o.r=(o.r+1)%4;o._w=null;if(PT[o.t].st)rest(o);ui();chg();save()};
+$('#ap').onclick=()=>{hist();rest(o);ui();chg();save()};
+$('#dp').onclick=()=>{hist();const{_w,_b,...c}=o;c.id=uid++;c.x+=8;c.y+=8;if(PT[c.t].st)rest(c);objs.push(c);sel=c.id;ui();chg();save()};
+$('#dl').onclick=del;$('#es').onclick=()=>stl([o],PT[o.t].n.split(' ')[0].toLowerCase());rv()}
+function del(){if(sel==null)return;hist();objs=objs.filter(o=>o.id!==sel);sel=null;ui();chg();save()}
+function rv(){const e=$('#rv');if(!e)return;if(!objs.length){e.innerHTML='';return}
+const P=objs.filter(o=>!o.ref),n=t=>objs.filter(o=>o.t==t).length,L=[],a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];
+P.forEach(o=>{ws(o);for(let i=0;i<3;i++){a[i]=Math.min(a[i],o._b.a[i]);b[i]=Math.max(b[i],o._b.b[i])}});
+if(P.length){const W=b[0]-a[0],D=b[1]-a[1],ok=W<=165&&D<=165;L.push(`<li${ok?'':' class="er"'}>Imprimible: ${W.toFixed(0)}×${D.toFixed(0)}×${(b[2]-a[2]).toFixed(0)} mm — ${ok?'entra':'NO entra'} en la cama (165×165). Exportá piezas sueltas si no entra.</li>`)}
+const br=objs.filter(o=>o.t=='lad'&&o.hp>1).length,pl=objs.filter(o=>o.t=='lad'&&o.hp==1).length;
+L.push(`<li>Lista: ${br} ladrillos, ${pl} placas, ${n('mot')} motores TT, ${n('rue')+n('rue2')} ruedas, ${n('pil')} pilas 18650, ${n('sopM')} soportes de motor, ${n('sopP')} soportes de pila</li>`);
+const mq=['tur','rot','sem','pos','tej','tej2'].reduce((q,t)=>q+n(t),0);if(mq)L.push(`<li>Maqueta: ${n('tur')} torres eólicas, ${n('rot')} rotores, ${n('sem')} semáforos, ${n('pos')} postes, ${n('tej')+n('tej2')} techos</li>`);
+if(n('mot')&&n('pil'))L.push('<li>Una 18650 da 3,7 V (4,2 V cargada); el motor TT va de 3 a 6 V. Usá un driver (L298N, TB6612, L9110) entre el Arduino y los motores, y una pila con protección.</li>');
+e.innerHTML='<h2>Revisión</h2><ul>'+L.join('')+'</ul>'}
+/* ---------- WebGL ---------- */
+const cv=$('#gl'),gl=cv.getContext('webgl',{antialias:true})||cv.getContext('experimental-webgl');
+if(!gl){$('#hint').textContent='Este navegador no puede mostrar 3D (WebGL). Probá con Chrome, Firefox, Edge o Safari actualizados.';$('#hint').style.cssText+=';position:static;padding:14px;font-size:14px';throw new Error('WebGL no disponible')}
+cv.addEventListener('webglcontextlost',e=>e.preventDefault());cv.addEventListener('webglcontextrestored',()=>location.reload());
+const sh=(t,s)=>{const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x},pg=gl.createProgram();
+gl.attachShader(pg,sh(gl.VERTEX_SHADER,'attribute vec3 p,n,c;uniform mat4 V;varying vec3 vn,vc;void main(){vn=n;vc=c;gl_Position=V*vec4(p,1.);}'));
+gl.attachShader(pg,sh(gl.FRAGMENT_SHADER,'precision mediump float;varying vec3 vn,vc;uniform float lit;void main(){if(lit<.5){gl_FragColor=vec4(vc,1.);return;}vec3 n=normalize(vn);float d=max(dot(n,normalize(vec3(.4,-.6,.8))),0.)*.6+max(dot(n,normalize(vec3(-.5,.4,.2))),0.)*.25+.38;gl_FragColor=vec4(vc*d,1.);}'));
+gl.bindAttribLocation(pg,0,'p');gl.bindAttribLocation(pg,1,'n');gl.bindAttribLocation(pg,2,'c');gl.linkProgram(pg);gl.useProgram(pg);
+const Lv=gl.getUniformLocation(pg,'V'),Ll=gl.getUniformLocation(pg,'lit'),gb=gl.createBuffer(),sb=gl.createBuffer();let sn=0;
+const att=()=>[0,3,6].forEach((o,i)=>{gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,36,o*4)}),
+dr=(a,mode)=>{gl.uniform1f(Ll,0);gl.bindBuffer(gl.ARRAY_BUFFER,gb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(a),gl.DYNAMIC_DRAW);att();gl.drawArrays(mode,0,a.length/9)},
+css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),col=(n,d)=>{const v=css(n);return hx(/^#[0-9a-f]{6}$/i.test(v)?v:d)};
+function rebuild(){const A=[];for(const o of objs){ws(o);const sl=o.id===sel;for(const[p,q,u,n,k]of o._w){const c=sl?[k[0]*.6+.4,k[1]*.6+.35,k[2]*.6]:k;for(const v of[p,q,u])A.push(v[0],v[1],v[2],n[0],n[1],n[2],c[0],c[1],c[2])}}
+gl.bindBuffer(gl.ARRAY_BUFFER,sb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(A),gl.STATIC_DRAW);sn=A.length/9;SC=1}
+const eye=()=>[cam.t[0]+cam.d*Math.cos(cam.el)*Math.cos(cam.az),cam.t[1]+cam.d*Math.cos(cam.el)*Math.sin(cam.az),cam.t[2]+cam.d*Math.sin(cam.el)];
+function view(){const a=cv.width/cv.height,f=1/Math.tan(.4),n=1,F=3000,P=new Float32Array([f/a,0,0,0,0,f,0,0,0,0,(F+n)/(n-F),-1,0,0,2*F*n/(n-F),0]),e=eye(),fw=nz(sub(cam.t,e)),s=nz(cr(fw,[0,0,1])),u=cr(s,fw);
+return{m:mul(P,new Float32Array([s[0],u[0],-fw[0],0,s[1],u[1],-fw[1],0,s[2],u[2],-fw[2],0,-dt(s,e),-dt(u,e),dt(fw,e),1])),e,fw,s,u}}
+function draw(){dirty=false;gl.viewport(0,0,cv.width,cv.height);gl.clearColor(...col('--cv','#cfd9e2'),1);gl.enable(gl.DEPTH_TEST);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+gl.uniformMatrix4fv(Lv,false,view().m);if(SC===null)rebuild();
+const pl=col('--pl','#e9eff4'),g1=col('--g1','#b9c6d2'),ac=col('--ac','#0f8b8d'),V=(x,y,z,c)=>[x,y,z,0,0,1,...c],F=[],Ln=[],B=96;
+[[-B,-B],[B,-B],[B,B],[-B,-B],[B,B],[-B,B]].forEach(([x,y])=>F.push(...V(x,y,-.05,pl)));dr(F,gl.TRIANGLES);
+for(let i=-B;i<=B;i+=8)Ln.push(...V(i,-B,0,g1),...V(i,B,0,g1),...V(-B,i,0,g1),...V(B,i,0,g1));
+[[-82.5,-82.5],[82.5,-82.5],[82.5,82.5],[-82.5,82.5]].forEach(([x,y],i,a)=>{const q=a[(i+1)%4];Ln.push(...V(x,y,.05,ac),...V(q[0],q[1],.05,ac))});dr(Ln,gl.LINES);
+gl.uniform1f(Ll,1);gl.bindBuffer(gl.ARRAY_BUFFER,sb);att();gl.drawArrays(gl.TRIANGLES,0,sn)}
+function size(){const r=devicePixelRatio||1,b=cv.getBoundingClientRect();cv.width=Math.max(1,b.width*r|0);cv.height=Math.max(1,b.height*r|0);dirty=true}
+new ResizeObserver(size).observe($('#c'));matchMedia('(prefers-color-scheme:dark)').onchange=()=>dirty=true;(function loop(){if(dirty)draw();requestAnimationFrame(loop)})();
+/* ---------- selección y cámara ---------- */
+function ray(e){const b=cv.getBoundingClientRect(),v=view(),th=Math.tan(.4),x=2*(e.clientX-b.left)/b.width-1,y=1-2*(e.clientY-b.top)/b.height,k=b.width/b.height;return{o:v.e,d:nz([0,1,2].map(i=>v.fw[i]+v.s[i]*x*th*k+v.u[i]*y*th)),v}}
+function hit(r){let best=null,bt=1e9;for(const o of objs){for(const[A,B,C]of ws(o)){const e1=sub(B,A),e2=sub(C,A),p=cr(r.d,e2),det=dt(e1,p);if(Math.abs(det)<1e-9)continue;const tv=sub(r.o,A),u=dt(tv,p)/det;if(u<0||u>1)continue;const q=cr(tv,e1),v=dt(r.d,q)/det;if(v<0||u+v>1)continue;const t=dt(e2,q)/det;if(t>0&&t<bt){bt=t;best=o}}}return best&&{o:best,z:r.o[2]+r.d[2]*bt}}
+const plane=(r,z)=>Math.abs(r.d[2])<1e-6?null:(t=>t>0?[r.o[0]+r.d[0]*t,r.o[1]+r.d[1]*t]:null)((z-r.o[2])/r.d[2]);
+const P=new Map();let mode,drag,moved,pd,pre,pm;const pdist=()=>{const a=[...P.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])||1},pmid=()=>{const a=[...P.values()];return[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2]};
+cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.clientX,e.clientY]);moved=false;
+if(P.size==2){mode='pinch';pd=pdist();pm=pmid();drag=null;return}
+const r=ray(e),h=hit(r);if(h){const o=h.o;sel=o.id;ui();chg();const s=plane(r,h.z);drag=s&&{o,s,x:o.x,y:o.y,z:h.z};pre=snap();mode='drag'}else mode=(e.button==2||e.shiftKey)?'pan':'orbit'};
+cv.onpointermove=e=>{const p=P.get(e.pointerId);if(!p)return;const dx=e.clientX-p[0],dy=e.clientY-p[1];P.set(e.pointerId,[e.clientX,e.clientY]);
+if(mode=='pinch'&&P.size==2){const n=pdist(),m=pmid(),v=view(),k=cam.d*.0016,mx=m[0]-pm[0],my=m[1]-pm[1];cam.d=Math.min(1500,Math.max(30,cam.d*pd/n));for(let i=0;i<2;i++)cam.t[i]+=-v.s[i]*mx*k+v.u[i]*my*k;pd=n;pm=m;dirty=true;return}
+moved=moved||Math.hypot(dx,dy)>1;
+if(mode=='orbit'){cam.az-=dx*.007;cam.el=Math.min(1.5,Math.max(.05,cam.el+dy*.007));dirty=true}
+else if(mode=='pan'){const v=view(),k=cam.d*.0016;for(let i=0;i<2;i++)cam.t[i]+=-v.s[i]*dx*k+v.u[i]*dy*k;dirty=true}
+else if(mode=='drag'&&drag){const h=plane(ray(e),drag.z);if(!h)return;const o=drag.o;if(!drag.m){if(Math.hypot(h[0]-drag.s[0],h[1]-drag.s[1])<1.5)return;drag.m=1;hist(pre)}
+o.x=snapv(o,drag.x+h[0]-drag.s[0],0);o.y=snapv(o,drag.y+h[1]-drag.s[1],1);o._w=null;if(PT[o.t].st)rest(o);chg();ui()}};
+const up=e=>{if(!P.delete(e.pointerId))return;if(mode=='orbit'&&!moved&&sel!=null){sel=null;ui();chg()}if(mode=='drag'&&drag&&drag.m)save();if(P.size<2&&mode=='pinch')mode=null};
+cv.onpointerup=up;cv.onpointercancel=up;cv.oncontextmenu=e=>e.preventDefault();
+cv.onwheel=e=>{e.preventDefault();cam.d=Math.min(1500,Math.max(30,cam.d*Math.exp(e.deltaY*.001)));dirty=true};
+addEventListener('keydown',e=>{if(/INPUT|SELECT/.test(e.target.tagName))return;if(e.key=='Delete'||e.key=='Backspace')del();else if((e.ctrlKey||e.metaKey)&&e.key=='z'){e.preventDefault();undo()}});
+const undo=()=>{const s=H.pop();if(s){load(s);save()}};
+/* ---------- STL y archivos ---------- */
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+function stl(L,name){if(!L.length){alert('No hay piezas imprimibles: el motor y la pila son solo de referencia.');return}
+const a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];L.forEach(o=>{ws(o);for(let i=0;i<3;i++){a[i]=Math.min(a[i],o._b.a[i]);b[i]=Math.max(b[i],o._b.b[i])}});
+const off=[(a[0]+b[0])/2,(a[1]+b[1])/2,a[2]];let n=0;L.forEach(o=>n+=o._w.length);const buf=new ArrayBuffer(84+50*n),v=new DataView(buf);v.setUint32(80,n,true);let q=84;
+for(const o of L)for(const[p1,p2,p3,nr]of o._w){[...nr,...p1,...p2,...p3].forEach((x,k)=>v.setFloat32(q+k*4,k<3?x:x-off[(k-3)%3],true));q+=50}
+dl(new Blob([buf],{type:'model/stl'}),name+'.stl')}
+$('#ex').onclick=()=>stl(objs.filter(o=>!o.ref),'lego');$('#un').onclick=undo;
+$('#nw').onclick=()=>{if(!objs.length||confirm('¿Empezar un diseño nuevo? Se borrará el actual.')){hist();objs=[];sel=null;ui();chg();save()}};
+$('#sv').onclick=()=>dl(new Blob([snap()],{type:'application/json'}),'lego.json');$('#op').onclick=()=>$('#fi').click();
+$('#fi').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{hist();load(t);save()}catch(x){alert('El archivo no es un diseño válido.')}});e.target.value=''};
+$('#pal').innerHTML=PAL.map(p=>p[1]?`<button data-i="${PAL.indexOf(p)}">${p[0]}</button>`:`<span class="t">${p[0]}</span>`).join('');
+$('#pal').onclick=e=>{const b=e.target.closest('[data-i]');if(b){const p=PAL[b.dataset.i];add(p[1],{...p[2]})}};
+try{const s=localStorage.getItem(KEY);if(s)load(s)}catch(e){}ui();
+/* ---------- PWA: sin conexión, instalación y estado de red ---------- */
+const net=()=>{const n=$('#net'),on=navigator.onLine;n.textContent=on?'En línea':'Sin conexión';n.classList.toggle('off',!on)};
+addEventListener('online',net);addEventListener('offline',net);net();
+let ip=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('#in').hidden=false});
+$('#in').onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice.catch(()=>{});ip=null;$('#in').hidden=true};
+addEventListener('appinstalled',()=>{ip=null;$('#in').hidden=true});
+if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
