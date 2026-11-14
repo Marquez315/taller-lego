@@ -134,3 +134,24 @@ En la paleta, sección **Grillo caminante**: el botón **Armar grillo completo**
 ## ▶ Simulador 3D (nuevo)
 
 `simulador.html` (botón **Simulador 3D** del encabezado): muestra el grillo y la araña caminando en 3D con la misma geometría de las piezas. Se puede variar la velocidad del motor (rpm), el radio de la manivela y el brazo de pata, invertir el sentido y girar/acercar la cámara con el dedo o el mouse. Muestra avance, velocidad y altura del cuerpo, y avisa si el mecanismo se traba. Es un modelo cinemático ideal (sin deslizamiento ni masa): sirve para comparar diseños antes de imprimir.
+
+
+## ✂ Partir para imprimir sin soportes (nuevo)
+
+Elegí una **Torre eólica**, un **Semáforo** o **Aspas de turbina** y tocá **✂ Partir para imprimir**. La pieza se reemplaza por sus partes, ya **acostadas en la cama** y acomodadas dentro de 165 × 165 mm:
+
+| Pieza | Partes |
+|---|---|
+| Torre eólica | Base con espiga · Mástil acostado · Góndola con eje |
+| Semáforo | Base con espiga · Mástil acostado · Cabeza con 3 módulos (los huecos LED quedan verticales) |
+| Poste de luz (LED) | Base con espiga · Mástil acostado · Cabeza con brazo(s) y hueco LED vertical |
+| Aspas | Cubo con ranuras inclinadas · Aspas planas (la inclinación la da la ranura) |
+
+- **Encastre**: espiga octogonal con aro de resalte que entra en un hueco con ranura (a presión). Se ajusta con el campo **Holgura encastre** (0,2 mm por defecto; subí o bajá 0,1 si entra duro o flojo).
+- **Sin soportes**: los voladizos se resuelven con octógonos (caras a 45°) y los huecos de LED quedan en vertical.
+- **STL por partes** baja un archivo por cada parte; **Exportar STL** baja todo el plato en un solo archivo.
+- Tip: imprimí con 3 perímetros y 20–30 % de relleno; en las aspas, inclinación de hasta ~30°.
+
+## 📦 Descargar todo para usar sin conexión
+
+En **⬇ Descargar aplicación** hay una opción nueva, **Descargar todo (.zip)**: baja la app completa (con el simulador). Descomprimila y abrí `index.html` con doble clic. Al publicar una versión nueva se cambió `VERSION` de `sw.js` a `v11`.
