@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador 3D — Grillo y Araña</title>
+<meta name="description" content="Simulá el movimiento 3D del grillo y de la araña robótica de Taller Lego.">
+<meta name="theme-color" content="#0f8b8d"><meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<style>
+:root{--bg:#dde5ec;--pn:#fff;--ink:#1b2733;--mu:#5d6b78;--ac:#0f8b8d;--ln:#c4cfd9;--cv:#cfd9e2;--pl:#e9eff4;--g1:#b9c6d2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--pn:#19232c;--ink:#e6edf3;--mu:#8fa0af;--ac:#3bc1c3;--ln:#2a3844;--cv:#0d1318;--pl:#18232c;--g1:#25333f}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0}
+body{font:14px/1.3 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;height:100dvh;overflow:hidden;overscroll-behavior:none}
+header{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px;background:var(--pn);border-bottom:1px solid var(--ln)}
+h1{font-size:16px;margin:0 auto 0 0}a.b,button,select{font:inherit;color:var(--ink);background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:7px 11px;cursor:pointer;text-decoration:none;touch-action:manipulation}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+main{position:relative;min-height:0;background:var(--cv)}canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#hud{position:absolute;left:10px;top:8px;background:color-mix(in srgb,var(--pn) 85%,transparent);border:1px solid var(--ln);border-radius:8px;padding:6px 9px;font-size:12px;pointer-events:none;line-height:1.5}
+#hud b{font-variant-numeric:tabular-nums}.er{color:#e5484d;font-weight:700}
+#ct{display:flex;gap:12px 18px;flex-wrap:wrap;align-items:center;padding:8px 10px;background:var(--pn);border-top:1px solid var(--ln)}
+#ct label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mu)}#ct input[type=range]{width:120px}#ct output{color:var(--ink);min-width:34px;font-variant-numeric:tabular-nums}
+footer{padding:6px 10px;background:var(--pn);border-top:1px solid var(--ln);text-align:center;font-size:12px;color:var(--mu)}footer a{color:var(--ac);font-weight:600}
+</style></head><body>
+<header><h1>🦗🕷️ Simulador 3D</h1>
+<select id="md" aria-label="Robot"><option value="g">🦗 Grillo (4 patas)</option><option value="a">🕷️ Araña (8 patas)</option></select>
+<button id="pl" class="p">⏸ Pausa</button><button id="rv">⇄ Invertir sentido</button><button id="vw">🎥 Vista</button><a class="b" href="index.html">← Taller Lego</a></header>
+<main><canvas id="gl"></canvas><div id="hud"></div></main>
+<div id="ct">
+<label>Motor <input id="rp" type="range" min="5" max="200" step="5" value="40"><output id="rpo"></output></label>
+<label>Radio manivela mm <input id="rr" type="range" min="6.5" max="10" step="0.5" value="6.5"><output id="rro"></output></label>
+<label>Brazo de pata mm <input id="ra" type="range" min="26" max="44" step="2" value="34"><output id="rao"></output></label>
+<label><input id="fo" type="checkbox" checked> Seguir al robot</label></div>
+<footer>Creado para educación, por la profesora: Marquez Camila Araceli &nbsp;—&nbsp; Instagram: <a href="https://www.instagram.com/didactica_aumentada3.0/" target="_blank" rel="noopener">@didactica_aumentada3.0</a> · Modelo cinemático ideal: sin deslizamiento ni masa.</footer>
+<script>
+"use strict";
+const $=s=>document.querySelector(s),hx=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255);
+/* ---------- cinemática (plano XZ, origen en el eje de la manivela) ---------- */
+const PH=.35,HX=22,HZ=10,FOOT=46.5,S={sp:0,r:6.5,a:34,rpm:40,dir:1,t:0,X:0,Zc:60,run:1,lock:0},TH={};let sup=null;
+function lens(){const P=[S.r*Math.cos(PH),S.r*Math.sin(PH)];S.Lf=Math.hypot(HX-P[0],HZ+S.a-P[1]);S.Lr=Math.hypot(-HX-P[0],HZ-S.a-P[1]);for(const k in TH)delete TH[k]}
+function ci(A,ra,B,rb){const dx=B[0]-A[0],dz=B[1]-A[1],d=Math.hypot(dx,dz);if(d>ra+rb||d<Math.abs(ra-rb)||d<1e-9)return null;const l=(ra*ra-rb*rb+d*d)/(2*d),h=Math.sqrt(Math.max(0,ra*ra-l*l)),mx=A[0]+l*dx/d,mz=A[1]+l*dz/d;return[[mx+h*dz/d,mz-h*dx/d],[mx-h*dz/d,mz+h*dx/d]]}
+function pose(){const legs=[];S.lock=0;for(const sd of[1,-1]){const f=PH+S.t+(sd>0?0:Math.PI),P=[S.r*Math.cos(f),S.r*Math.sin(f)];
+for(const k of['f','r']){const H=k=='f'?[HX,HZ]:[-HX,HZ],L=k=='f'?S.Lf:S.Lr,key=sd+k,t0=TH[key]||0;let t=t0;const c=ci(H,S.a,P,L);
+if(!c)S.lock=1;else{const an=c.map(T=>k=='f'?Math.atan2(-(T[0]-H[0]),T[1]-H[1]):Math.atan2(T[0]-H[0],-(T[1]-H[1]))),df=x=>Math.abs(Math.atan2(Math.sin(x-t0),Math.cos(x-t0)));t=df(an[0])<df(an[1])?an[0]:an[1]}
+TH[key]=t;legs.push({sd,k,H,t,P,L,id:key})}}return legs}
+const feet=legs=>{const F=[];for(const l of legs)for(const dx of(S.sp&&0,S.sp?[0,l.k=='f'?22:-22]:[0]))F.push({id:l.id+dx,x:l.H[0]+dx+FOOT*Math.sin(l.t),z:HZ-FOOT*Math.cos(l.t)});return F};
+function step(dt){S.t+=S.dir*S.rpm*Math.PI/30*dt;const lg=pose(),F=feet(lg);let m=F[0];for(const f of F)if(f.z<m.z-1e-6)m=f;
+if(sup&&sup.id==m.id){const same=F.find(f=>f.id==sup.id);if(same)S.X+=sup.x-same.x}sup={id:m.id,x:m.x};S.Zc=-m.z;return lg}
+/* ---------- WebGL ---------- */
+const cv=$('#gl'),gl=cv.getContext('webgl',{antialias:true});if(!gl){$('#hud').textContent='Este navegador no puede mostrar 3D (WebGL).';throw 0}
+const sh=(t,s)=>{const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x},pg=gl.createProgram();
+gl.attachShader(pg,sh(gl.VERTEX_SHADER,'attribute vec3 p,n;uniform mat4 VP,M;uniform mat3 R;varying vec3 vn;void main(){vn=R*n;gl_Position=VP*M*vec4(p,1.);}'));
+gl.attachShader(pg,sh(gl.FRAGMENT_SHADER,'precision mediump float;varying vec3 vn;uniform vec3 col;uniform float lit;void main(){vec3 n=normalize(vn);float d=lit>.5?max(dot(n,normalize(vec3(.4,-.6,.8))),0.)*.6+max(dot(n,normalize(vec3(-.5,.4,.2))),0.)*.25+.38:1.;gl_FragColor=vec4(col*d,1.);}'));
+gl.bindAttribLocation(pg,0,'p');gl.bindAttribLocation(pg,1,'n');gl.linkProgram(pg);gl.useProgram(pg);
+const U=n=>gl.getUniformLocation(pg,n),uVP=U('VP'),uM=U('M'),uR=U('R'),uC=U('col'),uL=U('lit');
+const cb=gl.createBuffer(),lb=gl.createBuffer();let cube=[];
+[[0,[1,0,0]],[1,[-1,0,0]],[2,[0,1,0]],[3,[0,-1,0]],[4,[0,0,1]],[5,[0,0,-1]]].forEach(([,n])=>{const a=n.findIndex(v=>v),s=n[a],u=(a+1)%3,w=(a+2)%3,P=(i,j)=>{const v=[0,0,0];v[a]=.5*s;v[u]=i*.5;v[w]=j*.5;return[...v,...n]};[[-1,-1],[1,-1],[1,1],[-1,-1],[1,1],[-1,1]].forEach(q=>cube.push(...P(...q)))});
+gl.bindBuffer(gl.ARRAY_BUFFER,cb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(cube),gl.STATIC_DRAW);
+const att=()=>{gl.enableVertexAttribArray(0);gl.enableVertexAttribArray(1);gl.vertexAttribPointer(0,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(1,3,gl.FLOAT,false,24,12)};
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],cr=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dt=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],nz=a=>{const l=Math.hypot(...a)||1;return a.map(x=>x/l)};
+const mul=(a,b)=>{const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s}return o};
+const cam={az:-.9,el:.35,d:270},tg=[0,0,45],css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),col=(n,d)=>{const v=css(n);return hx(/^#[0-9a-f]{6}$/i.test(v)?v:d)};
+function VP(){const a=cv.width/cv.height,f=1/Math.tan(.4),n=1,F=4000,P=new Float32Array([f/a,0,0,0,0,f,0,0,0,0,(F+n)/(n-F),-1,0,0,2*F*n/(n-F),0]),e=[tg[0]+cam.d*Math.cos(cam.el)*Math.cos(cam.az),tg[1]+cam.d*Math.cos(cam.el)*Math.sin(cam.az),tg[2]+cam.d*Math.sin(cam.el)],fw=nz(sub(tg,e)),s=nz(cr(fw,[0,0,1])),u=cr(s,fw);
+return mul(P,new Float32Array([s[0],u[0],-fw[0],0,s[1],u[1],-fw[1],0,s[2],u[2],-fw[2],0,-dt(s,e),-dt(u,e),dt(fw,e),1]))}
+function cubeDraw(c,ex,ey,ez,k){const M=new Float32Array([...ex,0,...ey,0,...ez,0,...c,1]),R=new Float32Array([...nz(ex),...nz(ey),...nz(ez)]);gl.uniformMatrix4fv(uM,false,M);gl.uniformMatrix3fv(uR,false,R);gl.uniform3fv(uC,k);gl.drawArrays(gl.TRIANGLES,0,36)}
+const box=(x,y,z,sx,sy,sz,k)=>cubeDraw([S.X+x,y,S.Zc+z],[sx,0,0],[0,sy,0],[0,0,sz],k);
+function bar(A,B,y,wd,k,th=3){const dx=B[0]-A[0],dz=B[1]-A[1],L=Math.hypot(dx,dz)||1,e=(L+wd)/L;cubeDraw([S.X+(A[0]+B[0])/2,y,S.Zc+(A[1]+B[1])/2],[dx*e,0,dz*e],[0,th,0],[-dz/L*wd,0,dx/L*wd],k)}
+const C={gr:hx('#6b7280'),pu:hx('#a855f7'),ye:hx('#f2c200'),si:hx('#a9b2ba'),bl:hx('#2f6fdb'),cr:hx('#3e8ef7'),or:hx('#f97316'),bk:hx('#222222'),wh:hx('#f4f4f4'),rd:hx('#dc2626')};
+function draw(lg){gl.viewport(0,0,cv.width,cv.height);gl.clearColor(...col('--cv','#cfd9e2'),1);gl.enable(gl.DEPTH_TEST);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(uVP,false,VP());gl.bindBuffer(gl.ARRAY_BUFFER,cb);att();gl.uniform1f(uL,0);
+const I=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]),I3=new Float32Array([1,0,0,0,1,0,0,0,1]),pl=col('--pl','#e9eff4'),g1=col('--g1','#b9c6d2'),V=(x,y,z,c)=>[x,y,z,0,0,1];
+gl.uniformMatrix4fv(uM,false,I);gl.uniformMatrix3fv(uR,false,I3);const cx=Math.round(tg[0]/20)*20,B=360,Fq=[],Ln=[];
+[[-B,-B],[B,-B],[B,B],[-B,-B],[B,B],[-B,B]].forEach(([x,y])=>Fq.push(...V(tg[0]+x,y,-.1)));gl.uniform3fv(uC,pl);gl.bindBuffer(gl.ARRAY_BUFFER,lb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(Fq),gl.DYNAMIC_DRAW);att();gl.drawArrays(gl.TRIANGLES,0,6);
+for(let x=cx-B;x<=cx+B;x+=20){Ln.push(...V(x,-B,0),...V(x,B,0))}for(let y=-B;y<=B;y+=20)Ln.push(...V(cx-B,y,0),...V(cx+B,y,0));gl.uniform3fv(uC,g1);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(Ln),gl.DYNAMIC_DRAW);att();gl.drawArrays(gl.LINES,0,Ln.length/6);
+gl.bindBuffer(gl.ARRAY_BUFFER,cb);att();gl.uniform1f(uL,1);
+const cc=S.sp?hx('#7c3aed'):hx('#30a46c'),hips=S.sp?[HX,HX+22]:[HX];
+box(0,0,-10.85,127.8,31.8,3.2,cc);box(0,0,0,37,22.5,18.5,C.ye);box(-35,0,0,33,18.4,18.4,C.si);box(0,0,11.05,79.8,23.8,3.2,C.cr);box(0,0,21.95,65.2,18.6,18.6,C.bl);
+for(const sx of[1,-1])for(const sy of[1,-1]){box(sx*37,sy*10.75,.1,6,2.5,18.7,cc);for(const h of hips)box(sx*h,sy*16.25,-1.2,7,7.5,22.45,cc)}
+if(!S.sp){box(48,0,1.75,20,20,22,C.or);for(const s of[1,-1])bar([45,12],[38,36],s*4.5,2,C.bk,1.8)}
+for(const l of lg){const sd=l.sd,t=l.t,a=S.a,H=l.H,O=[H[0]-Math.sin(t)*a,H[1]+Math.cos(t)*a],Fo=[H[0]+Math.sin(t)*FOOT,H[1]-Math.cos(t)*FOOT],D=[H[0]+Math.sin(t)*a,H[1]-Math.cos(t)*a],T=l.k=='f'?O:D;
+bar(O,Fo,sd*21.7,7,C.gr);bar(l.P,T,sd*(l.k=='f'?25.1:28.3),7,C.pu);box(H[0],sd*21.7,H[1],5,6,5,C.wh);
+if(l.k=='f'){bar([0,0],l.P,sd*18.2,7,C.pu);box(0,sd*18.2,0,8,3,8,C.pu);box(l.P[0],sd*26,l.P[1],5,9,5,C.wh)}
+if(S.sp){const dx=l.k=='f'?22:-22,e=l.k=='f'?O:D,e2=[e[0]+dx,e[1]];bar([O[0]+dx,O[1]],[Fo[0]+dx,Fo[1]],sd*21.7,7,C.gr);bar(e,e2,sd*31.5,7,C.rd);box(H[0]+dx,sd*21.7,H[1],5,6,5,C.wh)}}}
+function size(){const r=devicePixelRatio||1,b=cv.getBoundingClientRect();cv.width=Math.max(1,b.width*r|0);cv.height=Math.max(1,b.height*r|0)}
+new ResizeObserver(size).observe($('main'));
+/* ---------- cámara y controles ---------- */
+const P=new Map();let pd=0;
+cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.clientX,e.clientY]);if(P.size==2){const a=[...P.values()];pd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])}};
+cv.onpointermove=e=>{const p=P.get(e.pointerId);if(!p)return;const dx=e.clientX-p[0],dy=e.clientY-p[1];P.set(e.pointerId,[e.clientX,e.clientY]);
+if(P.size==2){const a=[...P.values()],n=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);cam.d=Math.min(1200,Math.max(120,cam.d*pd/n));pd=n}else{cam.az-=dx*.007;cam.el=Math.min(1.5,Math.max(.03,cam.el+dy*.007))}};
+cv.onpointerup=cv.onpointercancel=e=>P.delete(e.pointerId);cv.onwheel=e=>{e.preventDefault();cam.d=Math.min(1200,Math.max(120,cam.d*Math.exp(e.deltaY*.001)))};
+const VS=[[-.9,.35],[-Math.PI/2,.05],[0,.05],[-Math.PI/2,1.5]];let vi=0;$('#vw').onclick=()=>{vi=(vi+1)%VS.length;[cam.az,cam.el]=VS[vi]};
+const bind=(id,k,f)=>{const e=$('#'+id),o=$('#'+id+'o'),u=()=>{S[k]=+e.value;if(o)o.textContent=e.value+(k=='rpm'?' rpm':'');f&&f()};e.oninput=u;u()};
+bind('rp','rpm');bind('rr','r',lens);bind('ra','a',lens);
+$('#md').onchange=e=>{S.sp=e.target.value=='a'?1:0;lens();sup=null};$('#pl').onclick=()=>{S.run=!S.run;$('#pl').textContent=S.run?'⏸ Pausa':'▶ Reanudar'};$('#rv').onclick=()=>{S.dir*=-1;sup=null};
+/* sentido por defecto: que avance hacia +X (la cabeza) */
+lens();{let x0=0;for(let i=0;i<600;i++)step(.02);x0=S.X;for(let i=0;i<600;i++)step(.02);if(S.X<x0)S.dir=-1;S.X=0;S.t=0;sup=null;lens()}
+/* ---------- bucle ---------- */
+let last=performance.now(),mk=[last,0],vel=0;
+(function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;let lg=pose();if(S.run)lg=step(dt);
+if(now-mk[0]>600){vel=(S.X-mk[1])/((now-mk[0])/1000);mk=[now,S.X]}
+if($('#fo').checked){tg[0]=S.X;tg[1]=0}tg[2]=45;draw(lg);
+const th=lg.filter(l=>l.k=='f'&&l.sd>0)[0].t*180/Math.PI;
+$('#hud').innerHTML=(S.lock?'<span class="er">⚠ Mecanismo trabado: cambiá el radio o el brazo</span><br>':'')+'Avance: <b>'+(S.X/10).toFixed(1)+' cm</b><br>Velocidad: <b>'+(vel/10).toFixed(1)+' cm/s</b><br>Altura del cuerpo: <b>'+S.Zc.toFixed(0)+' mm</b><br>Pata delantera: <b>'+th.toFixed(0)+'°</b>';
+requestAnimationFrame(loop)})(last);
+</script></body></html>

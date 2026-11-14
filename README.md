@@ -1,3 +1,5 @@
+<p align="center"><img src="icons/icon-192.png" alt="Ícono de Taller Lego: un ladrillo Lego rojo 2×4" width="120"></p>
+
 # 🧱 Taller Lego
 
 **Taller Lego** es una aplicación web educativa para **diseñar piezas tipo Lego en 3D** y **exportarlas en formato STL** para imprimirlas en una impresora 3D. Sirve para armar chasis de robots, soportes para motores y pilas, torres eólicas, semáforos, postes de luz, techos y otras piezas de maquetas, todo con las medidas reales de los ladrillos Lego.
@@ -101,7 +103,7 @@ taller-lego/
 ├── manifest.webmanifest  ← datos para instalarla como app
 ├── .nojekyll             ← para que GitHub Pages sirva los archivos tal cual
 ├── README.md
-└── icons/                ← íconos de la app
+└── icons/                ← ícono de la app (ladrillo Lego en SVG y PNG)
 ```
 
 ## 🌐 Compatibilidad
@@ -116,3 +118,19 @@ HTML, CSS y JavaScript puro, sin librerías ni dependencias externas. El 3D se d
 
 Creado para educación, por la profesora **Marquez Camila Araceli**.
 Instagram: [@didactica_aumentada3.0](https://www.instagram.com/didactica_aumentada3.0/)
+
+
+## 🦗🕷️ Grillo y araña caminantes (nuevo)
+
+En la paleta, sección **Grillo caminante**: el botón **Armar grillo completo** coloca en la escena el chasis, el motorreductor TT amarillo, el soporte con la pila **18650**, la cabeza con antenas, dos manivelas, cuatro patas y cuatro bielas cruzadas (inspirado en los grillos de madera/3D con motor amarillo).
+
+- Las barras (patas y bielas) y las manivelas tienen agujeros para **tornillos M3 con tuerca** (≈10 en total). Cada pieza se edita en el panel (largo, agujeros extra, ángulo).
+- Imprimí cada barra con **STL de esta pieza** (sale acostada). Las piezas de referencia (motor y pila) no se exportan.
+- El movimiento sale de una manivela en cada lado, desfasadas 180°, que mueve la pata delantera y la trasera en sentido contrario. Es un diseño para probar e iterar: ajustá largos de bielas y radio de manivela según tu impresión.
+- Pila 18650: 3,7 V (4,2 V cargada); usá módulo con protección y un interruptor.
+
+**🕷️ Araña robótica (8 patas):** botón **Armar araña robótica**. Usa el mismo chasis, motor TT y pila 18650, pero con un segundo par de caderas por lado (campo «2.º par de caderas» = 44) y una biela paralela que une cada pata con su vecina, así las ocho patas se mueven juntas (inspirada en las arañas de palitos de helado con zigzag).
+
+## ▶ Simulador 3D (nuevo)
+
+`simulador.html` (botón **Simulador 3D** del encabezado): muestra el grillo y la araña caminando en 3D con la misma geometría de las piezas. Se puede variar la velocidad del motor (rpm), el radio de la manivela y el brazo de pata, invertir el sentido y girar/acercar la cámara con el dedo o el mouse. Muestra avance, velocidad y altura del cuerpo, y avisa si el mecanismo se traba. Es un modelo cinemático ideal (sin deslizamiento ni masa): sirve para comparar diseños antes de imprimir.

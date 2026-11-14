@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Taller Lego">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
@@ -29,8 +30,8 @@ button:hover{border-color:var(--ac)}button.p{background:var(--ac);border-color:v
 #c{grid-area:c;position:relative;min-height:0;background:var(--cv)}canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
 #hint{position:absolute;left:10px;bottom:8px;right:10px;color:var(--mu);font-size:12px;pointer-events:none}
 #pr{grid-area:r;padding:10px;background:var(--pn);border-left:1px solid var(--ln);overflow-y:auto}
-#pr h2{font-size:13px;margin:0 0 8px}.g{display:grid;grid-template-columns:auto 1fr;gap:5px 8px;align-items:center}
-#pr input[type=number]{width:100%;padding:5px 6px;border:1px solid var(--ln);border-radius:6px;background:var(--pl);color:var(--ink)}
+#pr h2{font-size:13px;margin:0 0 8px}.g{display:grid;grid-template-columns:minmax(0,1fr) minmax(78px,40%);gap:5px 8px;align-items:center}
+#pr input[type=number]{width:100%;min-width:70px;padding:5px 6px;border:1px solid var(--ln);border-radius:6px;background:var(--pl);color:var(--ink)}
 #pr input[type=color]{width:100%;height:30px;border:1px solid var(--ln);border-radius:6px;padding:2px;background:none}
 .b{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.b button{flex:1 1 auto;padding:6px 9px}.mu{color:var(--mu)}
 .rv{margin-top:14px;border-top:1px solid var(--ln);padding-top:10px;font-size:12px}.rv ul{margin:0;padding-left:16px}.rv li{margin:3px 0}.er{color:#e5484d}
@@ -52,9 +53,9 @@ body{grid-template:auto minmax(0,1fr) auto/130px minmax(0,1fr) 200px;grid-templa
 #pr{max-height:none;border-top:0;border-left:1px solid var(--ln)}#hint{display:none}footer{padding:3px 8px}}
 @media(min-width:761px) and (max-height:520px){header{padding:4px 8px}footer{padding:3px 8px}}
 </style></head><body>
-<header><h1>Taller Lego</h1>
+<header><h1><img src="icons/icon.svg" alt="" width="26" height="26" style="vertical-align:-6px;margin-right:6px;border-radius:6px">Taller Lego</h1>
 <button id="un">Deshacer</button><select id="sn" aria-label="Ajuste a rejilla"><option value="8" selected>Ajuste 8 mm (studs)</option><option value="4">Ajuste 4 mm</option><option value="1">Ajuste 1 mm</option></select>
-<span id="net" role="status" aria-live="polite">En línea</span><button id="in" class="p">⬇ Descargar aplicación</button><button id="nw">Nuevo</button><button id="sv">Guardar</button><button id="op">Abrir</button><button id="ex" class="p">Exportar STL</button><input id="fi" type="file" accept=".json" hidden></header>
+<span id="net" role="status" aria-live="polite">En línea</span><button id="sm">▶ Simulador 3D</button><button id="in" class="p">⬇ Descargar aplicación</button><button id="nw">Nuevo</button><button id="sv">Guardar</button><button id="op">Abrir</button><button id="ex" class="p">Exportar STL</button><input id="fi" type="file" accept=".json" hidden></header>
 <dialog id="dg" aria-labelledby="dt"><h2 id="dt">Usar Taller Lego sin conexión</h2>
 <p id="ds" role="status"></p>
 <p class="mu">Elegí cómo llevarte la aplicación. Tus diseños se guardan en el dispositivo y también podés usar <b>Guardar</b> para bajarlos como archivo.</p>
@@ -90,7 +91,7 @@ const PT={
 lad:{n:'Ladrillo / placa',st:1,tp:o=>o.hp*3.2,f:(m,o)=>brick(m,o),F:[['nx','Largo (studs)',1,16],['ny','Ancho (studs)',1,16],['hp','Alto (placas de 3,2 mm)',1,6]]},
 mot:{n:'Motorreductor TT amarillo',ref:1,tp:()=>0,f:(m,o)=>{m.box(-35,-11.25,0,2,11.25,18.5,hx(o.c));m.cyl('x',[18.5,0,9.25],33,9.2,0,hx('#a9b2ba'));m.cyl('y',[-16.5,0,9.25],40.5,2.7,0,hx('#eeeeee'))}},
 sopM:{n:'Soporte motor TT',st:1,d:{nx:10,ny:4,hp:1},tp:()=>3.2,f:(m,o)=>{brick(m,o,0);const k=hx(o.c);m.box(-36,11.45,3.2,36,15.45,8.2,k);m.box(-36,-15.45,3.2,36,-11.45,8.2,k)}},
-rue:{n:'Rueda',tp:()=>0,F:[['dm','Diámetro mm',20,90],['w','Ancho mm',4,30]],f:(m,o)=>m.cyl('y',[0,0,o.dm/2],o.w,o.dm/2,2.75,hx(o.c),40)},
+rue:{n:'Rueda',tp:()=>0,lay:1,F:[['dm','Diámetro mm',20,90],['w','Ancho mm',4,30]],f:(m,o)=>o.fl?m.cyl('z',[0,0,o.w/2],o.w,o.dm/2,2.75,hx(o.c),40):m.cyl('y',[0,0,o.dm/2],o.w,o.dm/2,2.75,hx(o.c),40)},
 pil:{n:'Pila 18650 (Ø18,6×65,2)',ref:1,tp:()=>0,f:(m,o)=>{m.cyl('x',[0,0,9.3],65.2,9.3,0,hx(o.c),24);m.cyl('x',[33.4,0,9.3],1.6,3.5,0,hx('#c8c8c8'))}},
 sopP:{n:'Soporte pila 18650',st:1,d:{nx:10,ny:3,hp:1},tp:()=>3.2,f:(m,o)=>{brick(m,o,0);const k=hx(o.c);m.box(-37.6,9.7,3.2,37.6,11.7,12.2,k);m.box(-37.6,-11.7,3.2,37.6,-9.7,12.2,k);m.box(35.6,-11.7,3.2,37.6,11.7,12.2,k);m.box(-37.6,-11.7,3.2,-35.6,11.7,12.2,k)}}};
 const PAL=[['Ladrillos y placas'],['🧱 Ladrillo 2×4','lad',{nx:4,ny:2,hp:3,c:'#e5484d'}],['🧱 Ladrillo 2×2','lad',{nx:2,ny:2,hp:3,c:'#3e8ef7'}],['▬ Placa 2×6','lad',{nx:6,ny:2,hp:1,c:'#30a46c'}],['▭ Placa chasis 6×10','lad',{nx:10,ny:6,hp:1,c:'#8e4ec6'}],
@@ -112,9 +113,39 @@ for(const s of[-1,1]){qw(m,[s*A,-B,z0],[s*A,B,z0],[s*A,B,z0+t],[s*A,-B,z0+t],[s,
 qw(m,[-A,-B,z0],[A,-B,z0],[A,B,z0],[-A,B,z0],[0,0,-1],k)}},
 tej2:{n:'Techo a 4 aguas',st:1,d:{nx:4,ny:4,rh:14,ov:3},tp:o=>3.2+o.rh,F:[...NXY,['rh','Altura del tejado mm',4,40],['ov','Alero mm',0,8]],f:(m,o)=>{const k=hx(o.c),a=o.nx*4-.1+o.ov,b=o.ny*4-.1+o.ov,sw=b<a,A=sw?b:a,Bm=sw?a:b,e=Bm-A,z0=3.2,z1=z0+o.rh,r=o.rh,p=(x,y,z)=>sw?[y,x,z]:[x,y,z];brick(m,{nx:o.nx,ny:o.ny,hp:1,c:o.c},0);m.box(-a,-b,z0,a,b,z0+1.6,k);
 for(const s of[-1,1]){qw(m,p(s*A,-Bm,z0),p(s*A,Bm,z0),p(0,e,z1),p(0,-e,z1),nz(p(s*r,0,A)),k);tw(m,p(-A,s*Bm,z0),p(A,s*Bm,z0),p(0,s*e,z1),nz(p(0,s*r,A)),k)}}},
-rue2:{n:'Rueda TT con eje D',tp:()=>0,d:{dm:65,w:20},F:[['dm','Diámetro mm',40,100],['w','Ancho mm',12,40]],f:(m,o)=>{const k=hx(o.c),R=o.dm/2,w=o.w,c=[0,0,R];m.cyl('y',c,w,R,R-3,k,48);m.cyl('y',c,w,7,2.75,k,24);m.box(1.85,-w/2,R-2.03,3.4,w/2,R+2.03,k);m.box(-3.4,-w/2,R-2.03,-1.85,w/2,R+2.03,k);for(let i=0;i<5;i++)rb(m,c,TAU*i/5,0,6,R-2.5,2.5,Math.min(w,8)/2,k)}}});
+rue2:{n:'Rueda TT con eje D',tp:()=>0,lay:1,d:{dm:65,w:20},F:[['dm','Diámetro mm',40,100],['w','Ancho mm',12,40]],f:(m,o)=>{const k=hx(o.c),R=o.dm/2,w=o.w,c=[0,0,R];if(o.fl){const t=Math.min(w,8),z0=(w-t)/2,z1=z0+t,zb=(a,u0,u1,hv)=>{const C=Math.cos(a),S=Math.sin(a),P=(u,v,z)=>[u*C-v*S,u*S+v*C,z],N=(u,v)=>[u*C-v*S,u*S+v*C,0];qw(m,P(u0,-hv,z0),P(u1,-hv,z0),P(u1,hv,z0),P(u0,hv,z0),[0,0,-1],k);qw(m,P(u0,-hv,z1),P(u1,-hv,z1),P(u1,hv,z1),P(u0,hv,z1),[0,0,1],k);for(const q of[-1,1]){qw(m,P(u0,q*hv,z0),P(u1,q*hv,z0),P(u1,q*hv,z1),P(u0,q*hv,z1),N(0,q),k);qw(m,P(q>0?u1:u0,-hv,z0),P(q>0?u1:u0,hv,z0),P(q>0?u1:u0,hv,z1),P(q>0?u1:u0,-hv,z1),N(q,0),k)}};
+m.cyl('z',[0,0,w/2],w,R,R-3,k,48);m.cyl('z',[0,0,w/2],w,7,2.75,k,24);m.box(1.85,-2.03,0,3.4,2.03,w,k);m.box(-3.4,-2.03,0,-1.85,2.03,w,k);for(let i=0;i<5;i++)zb(TAU*i/5,6,R-2.5,2.5);return}
+m.cyl('y',c,w,R,R-3,k,48);m.cyl('y',c,w,7,2.75,k,24);m.box(1.85,-w/2,R-2.03,3.4,w/2,R+2.03,k);m.box(-3.4,-w/2,R-2.03,-1.85,w/2,R+2.03,k);for(let i=0;i<5;i++)rb(m,c,TAU*i/5,0,6,R-2.5,2.5,Math.min(w,8)/2,k)}}});
 PAL.splice(PAL.findIndex(p=>p[1]=='rue')+1,0,['🛞 Rueda TT (eje D)','rue2',{c:'#222222'}]);
 PAL.push(['Maqueta y ciudad'],['🌬️ Torre eólica','tur',{c:'#e9edf1'}],['🌀 Aspas de turbina','rot',{c:'#3e8ef7'}],['🚦 Semáforo (LED)','sem',{c:'#2b2f36'}],['💡 Poste de luz (LED)','pos',{c:'#4b5563'}],['🏠 Techo 2 aguas','tej',{c:'#c2410c'}],['🏠 Techo 4 aguas','tej2',{c:'#b45309'}]);
+/* ---------- GRILLO caminante: chasis, cabeza, manivela, patas y bielas (agujeros M3) ---------- */
+Object.assign(PT,{
+gch:{n:'Chasis del grillo (motor TT + pila 18650)',st:1,d:{nx:16,ny:4,hx:22,hz:22.45,h2:0},tp:()=>3.2,F:[['nx','Largo (studs)',8,20],['ny','Ancho (studs)',3,6],['hx','Separación de caderas ± mm',10,35],['h2','2.º par de caderas mm (0 = no, 44 = araña)',0,50],['hz','Altura de caderas mm',15,40]],
+f:(m,o)=>{const k=hx(o.c);brick(m,{nx:o.nx,ny:o.ny,hp:1,c:o.c},1);
+for(const sx of[1,-1])for(const sy of[1,-1]){const a=sy>0?12.5:-20,b=sy>0?20:-12.5;for(const h of[o.hx,o.h2].filter(v=>v>0)){m.box(sx*h-3.5,a,0,sx*h+3.5,b,o.hz,k);m.cyl('y',[sx*h,sy*16.25,o.hz],7.5,5,1.4,k,16)}m.box(sx*37-3,sy>0?9.5:-12,3.2,sx*37+3,sy>0?12:-9.5,21.9,k)}}},
+ghe:{n:'Cabeza con antenas',st:1,tp:()=>26,f:(m,o)=>{const k=hx(o.c);brick(m,{nx:2,ny:2,hp:1,c:o.c},1);[10.5,9.8,8.3,5.8,2.6].forEach((q,i)=>m.cyl('z',[0,0,5.2+4*i],4,q,0,k,20));for(const s of[1,-1])rb(m,[-2,s*4.5,34],Math.PI-1.1,0,-12,12,.9,.9,hx('#222222'))}},
+gma:{n:'Manivela (eje D del motor)',tp:()=>0,lay:1,d:{cr:6.5,an:0,sd:1},F:[['cr','Radio de manivela mm',6.5,15],['an','Ángulo °',-180,180],['sd','Lado (1 o -1)',-1,1]],
+f:(m,o)=>{const k=hx(o.c),T=3,sd=o.sd<0?-1:1,th=(o.an||0)*Math.PI/180,R=o.cr,pc=[R*Math.cos(th),0,R*Math.sin(th)];
+if(o.fl){const q=[R*Math.cos(th),R*Math.sin(th)];m.cyl('z',[0,0,T/2],T,5.5,2.75,k,24);m.box(1.85,-2.03,0,3.4,2.03,T,k);m.box(-3.4,-2.03,0,-1.85,2.03,T,k);m.cyl('z',[q[0],q[1],T/2],T,3.5,1.7,k,16);m.cyl('z',[q[0],q[1],T+1.95],3.9,3.2,1.7,k,16);return}
+m.cyl('y',[0,0,0],T,5.5,2.75,k,24);m.box(1.85,-T/2,-2.03,3.4,T/2,2.03,k);m.box(-3.4,-T/2,-2.03,-1.85,T/2,2.03,k);
+m.cyl('y',pc,T,3.5,1.7,k,16);m.cyl('y',[pc[0],sd*(T/2+1.95),pc[2]],3.9,3.2,1.7,k,16)}},
+gba:{n:'Pata / biela con agujeros M3',tp:()=>0,lay:1,d:{L:60,p1:0,p2:0,an:0},F:[['L','Largo entre agujeros mm',20,120],['p1','Agujero extra 1 mm (0 = no)',0,120],['p2','Agujero extra 2 mm (0 = no)',0,120],['an','Ángulo XZ °',-180,180]],
+f:(m,o)=>{const k=hx(o.c),L=o.L,fl=o.fl?1:0,T=3,th=fl?0:(o.an||0)*Math.PI/180,pt=d=>fl?[d,0,T/2]:[d*Math.cos(th),0,d*Math.sin(th)];
+[0,o.p1,o.p2,L].forEach((d,i)=>{if(i==0||i==3||(d>3&&d<L-3))m.cyl(fl?'z':'y',pt(d),T,5,1.7,k,16)});
+if(fl)rb(m,pt(L/2),0,Math.PI/2,-L/2+3.6,L/2-3.6,3.5,T/2,k);else rb(m,pt(L/2),th,0,-L/2+3.6,L/2-3.6,3.5,T/2,k)}}});
+PAL.push(['Grillo caminante'],['🦗 Armar grillo completo','gri',{}],['🕷️ Armar araña robótica (8 patas)','ara',{}],['🦗 Chasis del grillo','gch',{c:'#30a46c'}],['🟠 Cabeza con antenas','ghe',{c:'#f97316'}],['⚙️ Manivela (eje D)','gma',{c:'#a855f7'}],['🦵 Pata (4 agujeros)','gba',{L:80.5,p1:34,p2:68,an:-90,c:'#6b7280'}],['↔️ Biela (2 agujeros)','gba',{L:40,p1:0,p2:0,an:0,c:'#a855f7'}]);
+function grillo(sp){hist();const ZB=29,a=34,hxx=22,cz=ZB+12.45,r=6.5,Ya=18.2,Yl=21.7,Yc=25.1,Yr=28.3,ph=.35,Hf=[hxx,10],Hr=[-hxx,10],Uf=[hxx,10+a],Dr=[-hxx,10-a],
+mk=(t,d)=>{const o=Object.assign({id:uid++,t,x:0,y:0,z:0,r:0,c:'#e5484d',ref:!!PT[t].ref},PT[t].d,d);objs.push(o);return o},
+sv=(P,H,T,L)=>{let b=1e9,bt=0;for(let i=-600;i<=600;i++){const t=i*.0008,v=[T[0]-H[0],T[1]-H[1]],q=[H[0]+Math.cos(t)*v[0]-Math.sin(t)*v[1],H[1]+Math.sin(t)*v[0]+Math.cos(t)*v[1]],d=Math.abs(Math.hypot(q[0]-P[0],q[1]-P[1])-L);if(d<b){b=d;bt=t}}return bt},
+P0=[r*Math.cos(ph),r*Math.sin(ph)],Lf=+Math.hypot(Uf[0]-P0[0],Uf[1]-P0[1]).toFixed(1),Lr=+Math.hypot(Dr[0]-P0[0],Dr[1]-P0[1]).toFixed(1),dg=v=>v*180/Math.PI;
+mk('gch',{z:ZB,c:sp?'#7c3aed':'#30a46c',h2:sp?44:0});mk('mot',{x:-16.5,z:ZB+3.2,r:2,c:'#f2c200'});mk('sopP',{z:ZB+21.9,c:'#3e8ef7'});mk('pil',{z:ZB+25.1,c:'#2f6fdb'});if(!sp)mk('ghe',{x:48,z:ZB+3.2,c:'#f97316'});
+for(const sd of[1,-1]){const f=ph+(sd>0?0:Math.PI),P=[r*Math.cos(f),r*Math.sin(f)],tf=sv(P,Hf,Uf,Lf),tr=sv(P,Hr,Dr,Lr),
+lg=(H,t)=>[H[0]-Math.sin(t)*a,H[1]+Math.cos(t)*a],Of=lg(Hf,tf),Or=lg(Hr,tr),Dd=[Hr[0]+Math.sin(tr)*a,Hr[1]-Math.cos(tr)*a];
+mk('gma',{y:sd*Ya,z:cz,cr:r,an:dg(f),sd,c:'#a855f7'});
+for(const[O,t]of[[Of,tf],[Or,tr]])mk('gba',{x:O[0],y:sd*Yl,z:cz+O[1],L:80.5,p1:a,p2:2*a,an:dg(t)-90,c:'#6b7280'});
+if(sp)for(const[O,t,dx]of[[Of,tf,22],[Or,tr,-22]]){mk('gba',{x:O[0]+dx,y:sd*Yl,z:cz+O[1],L:80.5,p1:a,p2:2*a,an:dg(t)-90,c:'#6b7280'});const Q=O===Of?O:[O[0]+Math.sin(t)*a*2-0,O[1]-Math.cos(t)*a*2];mk('gba',{x:Q[0]+(dx<0?dx:0),y:sd*31.5,z:cz+Q[1],L:22,an:0,c:'#dc2626'})}
+for(const[T,L,y]of[[Of,Lf,Yc],[Dd,Lr,Yr]]){const dx=T[0]-P[0],dz=T[1]-P[1];mk('gba',{x:P[0],y:sd*y,z:cz+P[1],L,an:dg(Math.atan2(dz,dx)),c:'#a855f7'})}}
+cam.t=[0,0,30];cam.d=330;sel=null;ui();chg();save()}
 /* ---------- estado ---------- */
 let objs=[],sel=null,H=[],uid=1,dirty=true,SC=null;const cam={az:-1.05,el:.6,d:260,t:[0,0,10]};
 const snap=()=>JSON.stringify({objs:objs.map(({_w,_b,...o})=>o),uid}),hist=s=>{H.push(s||snap());if(H.length>80)H.shift()},cur=()=>objs.find(o=>o.id===sel);
@@ -136,14 +167,15 @@ objs.push(o);sel=o.id;ui();chg();save()}
 function ui(){const o=cur(),pr=$('#pr');
 if(!o){pr.innerHTML='<h2>Propiedades</h2><p class="mu">Elegí una pieza de la paleta y tocala para editarla. El <b>motor</b> y la <b>pila</b> son de referencia (para comprobar que encajan) y no se exportan. Al agregar una rueda, se coloca sola en el eje del último motor.</p><div id="rv" class="rv"></div>';rv();return}
 const F=[['x','X mm'],['y','Y mm'],['z','Z mm'],...(o.t=='sopM'||o.t=='sopP'?[]:PT[o.t].F||[])];
-pr.innerHTML=`<h2>${PT[o.t].n}</h2><div class="g">`+F.map(([k,l])=>`<label for="f${k}">${l}</label><input id="f${k}" type="number" step="1" value="${+o[k].toFixed(2)}">`).join('')+`<label for="fc">Color</label><input id="fc" type="color" value="${o.c}"><label for="fr">Solo referencia</label><input id="fr" type="checkbox"${o.ref?' checked':''}></div><div class="b"><button id="rr">Girar 90°</button><button id="dp">Duplicar</button><button id="ap">Apoyar</button><button id="es">STL de esta pieza</button><button id="dl">Eliminar</button></div><div id="rv" class="rv"></div>`;
+pr.innerHTML=`<h2>${PT[o.t].n}</h2><div class="g">`+F.map(([k,l])=>`<label for="f${k}">${l}</label><input id="f${k}" type="number" step="1" value="${+o[k].toFixed(2)}">`).join('')+`<label for="fc">Color</label><input id="fc" type="color" value="${o.c}"><label for="fr">Solo referencia</label><input id="fr" type="checkbox"${o.ref?' checked':''}></div><div class="b"><button id="rr">Girar 90°</button><button id="dp">Duplicar</button><button id="ap">Apoyar</button>${PT[o.t].lay?`<button id="fl" class="p">${o.fl?'↥ Poner de canto':'⤓ Recostar en la cama'}</button>`:''}<button id="es">STL de esta pieza</button><button id="dl">Eliminar</button></div><div id="rv" class="rv"></div>`;
 F.forEach(([k,,mn,mx])=>{const e=$('#f'+k);e.onfocus=()=>e._s=snap();e.oninput=()=>{let v=parseFloat(e.value);if(isNaN(v))return;if(mn!=null)v=Math.min(mx,Math.max(mn,v));o[k]=v;o._w=null;if(PT[o.t].st&&k!='x'&&k!='y'&&k!='z')rest(o);chg()};e.onchange=()=>{if(e._s!==snap())hist(e._s);save()}});
 const fc=$('#fc');fc.onfocus=()=>fc._s=snap();fc.oninput=()=>{o.c=fc.value;o._w=null;chg()};fc.onchange=()=>{hist(fc._s);save()};
 $('#fr').onchange=e=>{hist();o.ref=e.target.checked;chg();save()};
 $('#rr').onclick=()=>{hist();o.r=(o.r+1)%4;o._w=null;if(PT[o.t].st)rest(o);ui();chg();save()};
 $('#ap').onclick=()=>{hist();rest(o);ui();chg();save()};
+if($('#fl'))$('#fl').onclick=()=>{hist();o.fl=!o.fl;o.z=0;o._w=null;ws(o);o.z=+(-o._b.a[2]).toFixed(2);o._w=null;ui();chg();save()};
 $('#dp').onclick=()=>{hist();const{_w,_b,...c}=o;c.id=uid++;c.x+=8;c.y+=8;if(PT[c.t].st)rest(c);objs.push(c);sel=c.id;ui();chg();save()};
-$('#dl').onclick=del;$('#es').onclick=()=>stl([o],PT[o.t].n.split(' ')[0].toLowerCase());rv()}
+$('#dl').onclick=del;$('#es').onclick=()=>stl([PT[o.t].lay?{...o,fl:1,x:0,y:0,z:0,r:0,_w:null,_b:null}:o],PT[o.t].n.split(' ')[0].toLowerCase());rv()}
 function del(){if(sel==null)return;hist();objs=objs.filter(o=>o.id!==sel);sel=null;ui();chg();save()}
 function rv(){const e=$('#rv');if(!e)return;if(!objs.length){e.innerHTML='';return}
 const P=objs.filter(o=>!o.ref),n=t=>objs.filter(o=>o.t==t).length,L=[],a=[1e9,1e9,1e9],b=[-1e9,-1e9,-1e9];
@@ -152,6 +184,7 @@ if(P.length){const W=b[0]-a[0],D=b[1]-a[1],ok=W<=165&&D<=165;L.push(`<li${ok?'':
 const br=objs.filter(o=>o.t=='lad'&&o.hp>1).length,pl=objs.filter(o=>o.t=='lad'&&o.hp==1).length;
 L.push(`<li>Lista: ${br} ladrillos, ${pl} placas, ${n('mot')} motores TT, ${n('rue')+n('rue2')} ruedas, ${n('pil')} pilas 18650, ${n('sopM')} soportes de motor, ${n('sopP')} soportes de pila</li>`);
 const mq=['tur','rot','sem','pos','tej','tej2'].reduce((q,t)=>q+n(t),0);if(mq)L.push(`<li>Maqueta: ${n('tur')} torres eólicas, ${n('rot')} rotores, ${n('sem')} semáforos, ${n('pos')} postes, ${n('tej')+n('tej2')} techos</li>`);
+if(n('gch'))L.push('<li>Grillo: '+objs.filter(o=>o.t=='gba').length+' barras (patas y bielas), '+n('gma')+' manivelas. Tornillos M3 con tuerca (≈10) para articular. Imprimí cada barra con «STL de esta pieza» (sale acostada).</li>');
 if(n('mot')&&n('pil'))L.push('<li>Una 18650 da 3,7 V (4,2 V cargada); el motor TT va de 3 a 6 V. Usá un driver (L298N, TB6612, L9110) entre el Arduino y los motores, y una pila con protección.</li>');
 e.innerHTML='<h2>Revisión</h2><ul>'+L.join('')+'</ul>'}
 /* ---------- WebGL ---------- */
@@ -212,7 +245,7 @@ $('#nw').onclick=()=>{if(!objs.length||confirm('¿Empezar un diseño nuevo? Se b
 $('#sv').onclick=()=>dl(new Blob([snap()],{type:'application/json'}),'lego.json');$('#op').onclick=()=>$('#fi').click();
 $('#fi').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{hist();load(t);save()}catch(x){alert('El archivo no es un diseño válido.')}});e.target.value=''};
 $('#pal').innerHTML=PAL.map(p=>p[1]?`<button data-i="${PAL.indexOf(p)}">${p[0]}</button>`:`<span class="t">${p[0]}</span>`).join('');
-$('#pal').onclick=e=>{const b=e.target.closest('[data-i]');if(b){const p=PAL[b.dataset.i];add(p[1],{...p[2]})}};
+$('#pal').onclick=e=>{const b=e.target.closest('[data-i]');if(b){const p=PAL[b.dataset.i];if(p[1]=='gri')grillo();else if(p[1]=='ara')grillo(1);else add(p[1],{...p[2]})}};
 try{const s=localStorage.getItem(KEY);if(s)load(s)}catch(e){}ui();
 /* ---------- PWA: sin conexión, instalación y estado de red ---------- */
 const net=()=>{const n=$('#net'),on=navigator.onLine;n.textContent=on?'En línea':'Sin conexión';n.classList.toggle('off',!on)};
@@ -227,7 +260,7 @@ ds.className=ok||loc?'ok':'no';ds.textContent=loc?'✅ Estás usando el archivo 
 $('#di').disabled=!ip;$('#di').hidden=stand||loc;$('#dh').hidden=loc;
 $('#dn').textContent=ip?'':ios?'En iPhone/iPad: tocá Compartir y luego "Agregar a pantalla de inicio".':stand?'':loc?'':'Si no se habilita "Instalar", usá el menú del navegador (⋮) → "Instalar aplicación", o descargá el archivo .html.'}
 $('#in').onclick=async()=>{await ref();dg.showModal?dg.showModal():alert(ds.textContent)};
-$('#dc').onclick=()=>dg.close();dg.onclick=e=>{if(e.target===dg)dg.close()};
+$('#sm').onclick=()=>{location.href='simulador.html'};$('#dc').onclick=()=>dg.close();dg.onclick=e=>{if(e.target===dg)dg.close()};
 $('#di').onclick=async()=>{if(!ip)return;ip.prompt();await ip.userChoice.catch(()=>{});ip=null;ref()};
 $('#dh').onclick=async()=>{try{const r=await fetch('index.html');if(!r.ok)throw 0;dl(new Blob([await r.text()],{type:'text/html'}),'Taller_Lego.html');ds.className='ok';ds.textContent='✅ Descargado. Guardalo y abrilo con doble clic: funciona sin internet.'}catch(e){ds.className='no';ds.textContent='⚠ No se pudo descargar ahora. Conectate a internet e intentá de nuevo.'}};
 if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));

@@ -1,16 +1,18 @@
 /* Service worker de Taller Lego: permite usar la app sin conexión.
    Para publicar una versión nueva, cambiá VERSION (así se renueva la caché). */
-const VERSION = 'v2';
+const VERSION = 'v9';
 const CACHE = 'taller-lego-' + VERSION;
 const ASSETS = [
   './',
   './index.html',
+  './simulador.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-512.png',
   './icons/apple-touch-icon.png',
-  './icons/favicon-32.png'
+  './icons/favicon-32.png',
+  './icons/icon.svg'
 ];
 
 self.addEventListener('install', e => {
