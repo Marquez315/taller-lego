@@ -155,3 +155,8 @@ Elegí una **Torre eólica**, un **Semáforo** o **Aspas de turbina** y tocá **
 ## 📦 Descargar todo para usar sin conexión
 
 En **⬇ Descargar aplicación** hay una opción nueva, **Descargar todo (.zip)**: baja la app completa (con el simulador). Descomprimila y abrí `index.html` con doble clic. Al publicar una versión nueva se cambió `VERSION` de `sw.js` a `v11`.
+
+
+## 🛞 Ruedas planas, sin soportes
+
+La **Rueda TT (eje D)** ahora es plana (8 mm de ancho por defecto): aro, cubo y rayos tienen el mismo grosor y apoyan directo en la cama, así que se imprime **sin soportes**. Para imprimir una rueda usá **STL de esta pieza** o **STL por partes**: salen acostadas. Al cambiar «Ancho» seguí usando valores bajos; los rayos siempre ocupan todo el ancho.
