@@ -160,3 +160,13 @@ En **⬇ Descargar aplicación** hay una opción nueva, **Descargar todo (.zip)*
 ## 🛞 Ruedas planas, sin soportes
 
 La **Rueda TT (eje D)** ahora es plana (8 mm de ancho por defecto): aro, cubo y rayos tienen el mismo grosor y apoyan directo en la cama, así que se imprime **sin soportes**. Para imprimir una rueda usá **STL de esta pieza** o **STL por partes**: salen acostadas. Al cambiar «Ancho» seguí usando valores bajos; los rayos siempre ocupan todo el ancho.
+
+
+## 🛞 Rueda con eje largo (nueva)
+
+En la paleta, **Rueda eje largo**: aro, 5 rayos y cubo de 15 mm con agujero de eje D (basada en un STL de Ø65 × 8 mm de ancho). Se coloca sola en el eje del último motor (una a cada lado). Tiene dos medidas editables en el panel:
+
+- **Diámetro** (30 a 100 mm): el aro conserva su grosor de 3 mm y los rayos se alargan o acortan sin cambiar de ancho. El cubo no cambia.
+- **Ancho del aro** (4 a 40 mm): el aro y los rayos se estiran; el cubo conserva sus 15 mm de saliente.
+
+Para imprimir usá **STL de esta pieza** (sale acostada, sin soportes). Con los valores por defecto (65 y 8) coincide con el STL original.
